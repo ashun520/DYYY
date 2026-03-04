@@ -39,6 +39,12 @@ static NSString *const kDYYYTabBarHeightKey = @"DYYYTabBarHeight";
 static char kDYYYGlobalTransparencyBaseAlphaKey;
 static NSInteger dyyyGlobalTransparencyMutationDepth = 0;
 
+// 主题系统常量
+static NSString *const kDYYYThemeStyleKey = @"DYYYThemeStyle";
+static NSString *const kDYYYBackgroundColorKey = @"DYYYBackgroundColor";
+static NSString *const kDYYYBackgroundAlphaKey = @"DYYYBackgroundAlpha";
+static NSString *const kDYYYPrimaryColorKey = @"DYYYPrimaryColor";
+
 static void updateGlobalTransparencyCache() {
     NSString *transparentValue = DYYYGetString(kDYYYGlobalTransparencyKey);
     if (transparentValue.length > 0) {
@@ -52,11 +58,85 @@ static void updateGlobalTransparencyCache() {
     gGlobalTransparency = kInvalidAlpha;
 }
 
+// 获取主题背景色
+static UIColor *DYYYGetThemeBackgroundColor(void) {
+    NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:kDYYYBackgroundColorKey];
+    NSString *alphaStr = [[NSUserDefaults standardUserDefaults] stringForKey:kDYYYBackgroundAlphaKey];
+    
+    CGFloat alpha = 1.0;
+    if (alphaStr && alphaStr.length > 0) {
+        NSScanner *scanner = [NSScanner scannerWithString:alphaStr];
+        float alphaValue;
+        if ([scanner scanFloat:&alphaValue]) {
+            alpha = MIN(MAX(alphaValue, 0.0), 1.0);
+        }
+    }
+    
+    if (colorHex && colorHex.length > 0) {
+        UIColor *baseColor = [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+        return [baseColor colorWithAlphaComponent:alpha];
+    }
+    
+    return nil;
+}
+
+// 获取主色调
+static UIColor *DYYYGetThemePrimaryColor(void) {
+    NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:kDYYYPrimaryColorKey];
+    if (colorHex && colorHex.length > 0) {
+        return [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+    }
+    return nil;
+}
+
 static NSDictionary<NSString *, NSString *> *DYYYTopTabTitleMapping(void) {
     static NSString *cachedRawValue = nil;
     static NSDictionary<NSString *, NSString *> *cachedMapping = nil;
 
     NSString *currentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYModifyTopTabText"];
+    BOOL rawValueChanged = (cachedRawValue != currentValue) && ![cachedRawValue isEqualToString:currentValue];
+
+    if (!rawValueChanged) {
+        return cachedMapping;
+    }
+
+    cachedRawValue = [currentValue copy];
+
+    if (currentValue.length == 0) {
+        cachedMapping = nil;
+        return nil;
+    }
+
+    NSMutableDictionary<NSString *, NSString *> *mapping = [NSMutableDictionary dictionary];
+    NSArray<NSString *> *titlePairs = [currentValue componentsSeparatedByString:@"#"];
+    NSCharacterSet *whitespace = [NSCharacterSet whitespaceAndNewlineCharacterSet];
+
+    for (NSString *pair in titlePairs) {
+        NSArray<NSString *> *components = [pair componentsSeparatedByString:@"="];
+        if (components.count != 2) {
+            continue;
+        }
+
+        NSString *originalTitle = [components[0] stringByTrimmingCharactersInSet:whitespace];
+        NSString *newTitle = [components[1] stringByTrimmingCharactersInSet:whitespace];
+
+        if (originalTitle.length == 0 || newTitle.length == 0) {
+            continue;
+        }
+
+        mapping[originalTitle] = newTitle;
+    }
+
+    cachedMapping = mapping.count > 0 ? [mapping copy] : nil;
+    return cachedMapping;
+}
+
+// 底栏标题修改映射
+static NSDictionary<NSString *, NSString *> *DYYYBottomTabTitleMapping(void) {
+    static NSString *cachedRawValue = nil;
+    static NSDictionary<NSString *, NSString *> *cachedMapping = nil;
+
+    NSString *currentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYModifyBottomTabText"];
     BOOL rawValueChanged = (cachedRawValue != currentValue) && ![cachedRawValue isEqualToString:currentValue];
 
     if (!rawValueChanged) {
@@ -5441,10 +5521,23 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
 
     NSMutableArray *visibleButtons = [NSMutableArray array];
     UIView *ipadContainerView = nil;
+    NSDictionary<NSString *, NSString *> *bottomTitleMapping = DYYYBottomTabTitleMapping();
 
     for (UIView *subview in self.subviews) {
         if ([subview isKindOfClass:generalButtonClass] || [subview isKindOfClass:plusButtonClass]) {
             NSString *label = subview.accessibilityLabel;
+            
+            // 应用底栏标题修改
+            if (bottomTitleMapping && bottomTitleMapping[label]) {
+                NSString *newTitle = bottomTitleMapping[label];
+                if ([subview respondsToSelector:@selector(setTitle:)]) {
+                    [subview performSelector:@selector(setTitle:) withObject:newTitle];
+                }
+                if ([subview respondsToSelector:@selector(setAccessibilityLabel:)]) {
+                    [subview setAccessibilityLabel:newTitle];
+                }
+            }
+            
             BOOL shouldHide = ([label containsString:@"商城"] && hideShop) || ([label containsString:@"消息"] && hideMsg) || ([label containsString:@"朋友"] && hideFri) ||
                               ([label isEqualToString:@"我"] && hideMe);
 

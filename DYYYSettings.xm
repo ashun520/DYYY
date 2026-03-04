@@ -864,6 +864,11 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
             @"detail" : @"标题=修改#标题=修改",
             @"cellType" : @26,
             @"imageName" : @"ic_tag_outlined_20"},
+          @{@"identifier" : @"DYYYModifyBottomTabText",
+            @"title" : @"设置底栏标题",
+            @"detail" : @"商城=购物#消息=聊天#朋友=好友#我=账户",
+            @"cellType" : @26,
+            @"imageName" : @"ic_tag_outlined_20"},
           @{@"identifier" : @"DYYYIndexTitle",
             @"title" : @"设置首页标题",
             @"detail" : @"不填默认",
@@ -906,6 +911,24 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
                 keywordListView.onConfirm = ^(NSArray *keywords) {
                   NSString *keywordString = [keywords componentsJoinedByString:@"#"];
                   [DYYYSettingsHelper setUserDefaults:keywordString forKey:@"DYYYModifyTopTabText"];
+                  item.detail = keywordString;
+                  [item refreshCell];
+                };
+                [keywordListView show];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYModifyBottomTabText"]) {
+              NSString *savedValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYModifyBottomTabText"];
+              item.detail = savedValue ?: @"";
+              item.cellTappedBlock = ^{
+                NSString *savedPairs = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYModifyBottomTabText"] ?: @"";
+                NSArray *pairArray = savedPairs.length > 0 ? [savedPairs componentsSeparatedByString:@"#"] : @[];
+                DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置底栏标题" keywords:pairArray];
+                keywordListView.addItemTitle = @"添加标题修改";
+                keywordListView.editItemTitle = @"编辑标题修改";
+                keywordListView.inputPlaceholder = @"原标题=新标题";
+                keywordListView.onConfirm = ^(NSArray *keywords) {
+                  NSString *keywordString = [keywords componentsJoinedByString:@"#"];
+                  [DYYYSettingsHelper setUserDefaults:keywordString forKey:@"DYYYModifyBottomTabText"];
                   item.detail = keywordString;
                   [item refreshCell];
                 };
