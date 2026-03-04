@@ -949,10 +949,98 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
       [iconItems addObject:[DYYYSettingsHelper createIconCustomizationItemWithIdentifier:@"DYYYIconShare" title:@"分享的图标" svgIcon:@"ic_share_outlined" saveFile:@"share.png"]];
       [iconItems addObject:[DYYYSettingsHelper createIconCustomizationItemWithIdentifier:@"DYYYIconPlus" title:@"拍摄的图标" svgIcon:@"ic_camera_outlined" saveFile:@"tab_plus.png"]];
 
+      // 【主题系统】分类
+      NSMutableArray<AWESettingItemModel *> *themeItems = [NSMutableArray array];
+      NSArray *themeSettings = @[
+          @{@"identifier" : @"DYYYThemeStyle",
+            @"title" : @"选择主题",
+            @"detail" : @"默认",
+            @"cellType" : @26,
+            @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYBackgroundColor",
+            @"title" : @"设置背景颜色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_color_outlined_20"},
+          @{@"identifier" : @"DYYYBackgroundAlpha",
+            @"title" : @"背景透明度",
+            @"detail" : @"0-1小数",
+            @"cellType" : @26,
+            @"imageName" : @"ic_eye_outlined_20"},
+          @{@"identifier" : @"DYYYPrimaryColor",
+            @"title" : @"主色调颜色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_palette_outlined_20"},
+      ];
+
+      for (NSDictionary *dict in themeSettings) {
+          AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict cellTapHandlers:cellTapHandlers];
+          if ([item.identifier isEqualToString:@"DYYYThemeStyle"]) {
+              NSString *savedTheme = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeStyle"];
+              item.detail = savedTheme ?: @"默认";
+              item.cellTappedBlock = ^{ 
+                NSArray *themeOptions = @[ @"默认", @"深色", @"浅色" ];
+                [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYThemeStyle"
+                                                   optionsArray:themeOptions
+                                                     headerText:@"选择主题"
+                                                 onPresentingVC:topView()
+                                               selectionChanged:^(NSString *selectedValue) {
+                                                 item.detail = selectedValue;
+                                                 [item refreshCell];
+                                               }];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYBackgroundColor"]) {
+              NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBackgroundColor"];
+              item.detail = savedColor ?: @"";
+              item.cellTappedBlock = ^{ 
+                [DYYYSettingsHelper showTextInputAlert:@"设置背景颜色"
+                                           defaultText:item.detail
+                                           placeholder:@"十六进制"
+                                             onConfirm:^(NSString *text) {
+                                               [DYYYSettingsHelper setUserDefaults:text forKey:@"DYYYBackgroundColor"];
+                                               item.detail = text;
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYBackgroundAlpha"]) {
+              NSString *savedAlpha = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBackgroundAlpha"];
+              item.detail = savedAlpha ?: @"";
+              item.cellTappedBlock = ^{ 
+                [DYYYSettingsHelper showTextInputAlert:@"设置背景透明度"
+                                           defaultText:item.detail
+                                           placeholder:@"0-1小数"
+                                             onConfirm:^(NSString *text) {
+                                               [DYYYSettingsHelper setUserDefaults:text forKey:@"DYYYBackgroundAlpha"];
+                                               item.detail = text;
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYPrimaryColor"]) {
+              NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYPrimaryColor"];
+              item.detail = savedColor ?: @"";
+              item.cellTappedBlock = ^{ 
+                [DYYYSettingsHelper showTextInputAlert:@"设置主色调颜色"
+                                           defaultText:item.detail
+                                           placeholder:@"十六进制"
+                                             onConfirm:^(NSString *text) {
+                                               [DYYYSettingsHelper setUserDefaults:text forKey:@"DYYYPrimaryColor"];
+                                               item.detail = text;
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          }
+          [themeItems addObject:item];
+      }
+
       NSMutableArray *sections = [NSMutableArray array];
       [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"透明度设置" items:transparencyItems]];
       [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"缩放与大小" items:scaleItems]];
       [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"标题自定义" items:titleItems]];
+      [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"主题系统" items:themeItems]];
       [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"图标自定义" items:iconItems]];
       // 创建并组织所有section
       // 创建并推入二级设置页面

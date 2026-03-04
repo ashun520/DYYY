@@ -5533,9 +5533,7 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
                 if ([subview respondsToSelector:@selector(setTitle:)]) {
                     [subview performSelector:@selector(setTitle:) withObject:newTitle];
                 }
-                if ([subview respondsToSelector:@selector(setAccessibilityLabel:)]) {
-                    [subview setAccessibilityLabel:newTitle];
-                }
+                // 不要修改accessibilityLabel，保留原始标签用于识别
             }
             
             BOOL shouldHide = ([label containsString:@"商城"] && hideShop) || ([label containsString:@"消息"] && hideMsg) || ([label containsString:@"朋友"] && hideFri) ||
