@@ -958,7 +958,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
             @"cellType" : @26,
             @"imageName" : @"ic_palette_outlined_20"},
           @{@"identifier" : @"DYYYBackgroundColor",
-            @"title" : @"设置背景颜色",
+            @"title" : @"全局背景颜色",
             @"detail" : @"十六进制",
             @"cellType" : @26,
             @"imageName" : @"ic_color_outlined_20"},
@@ -967,6 +967,16 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
             @"detail" : @"0-1小数",
             @"cellType" : @26,
             @"imageName" : @"ic_eye_outlined_20"},
+          @{@"identifier" : @"DYYYMessageBackgroundColor",
+            @"title" : @"消息页面背景",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_msg_outlined_20"},
+          @{@"identifier" : @"DYYYTabBarBackgroundColor",
+            @"title" : @"底栏背景颜色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_ipadiphone_outlined"},
           @{@"identifier" : @"DYYYPrimaryColor",
             @"title" : @"主色调颜色",
             @"detail" : @"十六进制",
@@ -1013,6 +1023,34 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
                                            placeholder:@"0-1小数"
                                              onConfirm:^(NSString *text) {
                                                [DYYYSettingsHelper setUserDefaults:text forKey:@"DYYYBackgroundAlpha"];
+                                               item.detail = text;
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYMessageBackgroundColor"]) {
+              NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYMessageBackgroundColor"];
+              item.detail = savedColor ?: @"";
+              item.cellTappedBlock = ^{ 
+                [DYYYSettingsHelper showTextInputAlert:@"设置消息页面背景"
+                                           defaultText:item.detail
+                                           placeholder:@"十六进制"
+                                             onConfirm:^(NSString *text) {
+                                               [DYYYSettingsHelper setUserDefaults:text forKey:@"DYYYMessageBackgroundColor"];
+                                               item.detail = text;
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYTabBarBackgroundColor"]) {
+              NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTabBarBackgroundColor"];
+              item.detail = savedColor ?: @"";
+              item.cellTappedBlock = ^{ 
+                [DYYYSettingsHelper showTextInputAlert:@"设置底栏背景颜色"
+                                           defaultText:item.detail
+                                           placeholder:@"十六进制"
+                                             onConfirm:^(NSString *text) {
+                                               [DYYYSettingsHelper setUserDefaults:text forKey:@"DYYYTabBarBackgroundColor"];
                                                item.detail = text;
                                                [item refreshCell];
                                              }

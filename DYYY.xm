@@ -89,16 +89,51 @@ static UIColor *DYYYGetThemePrimaryColor(void) {
     return nil;
 }
 
+// 获取消息页面背景色
+static UIColor *DYYYGetThemeMessageBackgroundColor(void) {
+    NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYMessageBackgroundColor"];
+    if (colorHex && colorHex.length > 0) {
+        return [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+    }
+    return nil;
+}
+
+// 获取底栏背景色
+static UIColor *DYYYGetThemeTabBarBackgroundColor(void) {
+    NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYTabBarBackgroundColor"];
+    if (colorHex && colorHex.length > 0) {
+        return [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+    }
+    return nil;
+}
+
 // 应用主题颜色到视图
 static void DYYYApplyThemeToView(UIView *view) {
     if (!view) return;
     
     UIColor *bgColor = DYYYGetThemeBackgroundColor();
+    UIColor *messageBgColor = DYYYGetThemeMessageBackgroundColor();
+    UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
     UIColor *primaryColor = DYYYGetThemePrimaryColor();
     
-    // 应用背景颜色
-    if (bgColor) {
-        [view setBackgroundColor:bgColor];
+    // 检查视图类型并应用相应的背景颜色
+    NSString *viewClassName = NSStringFromClass([view class]);
+    if ([viewClassName containsString:@"Message"] || [viewClassName containsString:@"Chat"]) {
+        if (messageBgColor) {
+            [view setBackgroundColor:messageBgColor];
+        } else if (bgColor) {
+            [view setBackgroundColor:bgColor];
+        }
+    } else if ([viewClassName containsString:@"TabBar"] || [viewClassName containsString:@"tabBar"]) {
+        if (tabBarBgColor) {
+            [view setBackgroundColor:tabBarBgColor];
+        } else if (bgColor) {
+            [view setBackgroundColor:bgColor];
+        }
+    } else {
+        if (bgColor) {
+            [view setBackgroundColor:bgColor];
+        }
     }
     
     // 应用主色调到子视图
@@ -107,11 +142,18 @@ static void DYYYApplyThemeToView(UIView *view) {
             UIButton *button = (UIButton *)subview;
             if (primaryColor) {
                 [button setTintColor:primaryColor];
+                [button setTitleColor:primaryColor forState:UIControlStateNormal];
             }
         } else if ([subview isKindOfClass:[UILabel class]]) {
             UILabel *label = (UILabel *)subview;
             if (primaryColor) {
                 [label setTextColor:primaryColor];
+            }
+        } else if ([subview isKindOfClass:[UITextField class]]) {
+            UITextField *textField = (UITextField *)subview;
+            if (primaryColor) {
+                [textField setTextColor:primaryColor];
+                [textField setTintColor:primaryColor];
             }
         }
         DYYYApplyThemeToView(subview);
@@ -5563,7 +5605,7 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
                 if (!newTitle) {
                     // 尝试匹配包含关系，例如"商城"可能在accessibilityLabel中是"商城Tab"等
                     for (NSString *originalTitle in bottomTitleMapping) {
-                        if ([label containsString:originalTitle]) {
+                        if ([label containsString:originalTitle] || [originalTitle containsString:label]) {
                             newTitle = bottomTitleMapping[originalTitle];
                             break;
                         }
@@ -5583,6 +5625,14 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
                         if ([childView isKindOfClass:[UILabel class]]) {
                             UILabel *labelView = (UILabel *)childView;
                             labelView.text = newTitle;
+                        } else {
+                            // 递归检查子视图
+                            for (UIView *grandChildView in childView.subviews) {
+                                if ([grandChildView isKindOfClass:[UILabel class]]) {
+                                    UILabel *grandChildLabel = (UILabel *)grandChildView;
+                                    grandChildLabel.text = newTitle;
+                                }
+                            }
                         }
                     }
                 }
