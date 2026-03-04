@@ -980,7 +980,7 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
               NSString *savedTheme = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeStyle"];
               item.detail = savedTheme ?: @"默认";
               item.cellTappedBlock = ^{ 
-                NSArray *themeOptions = @[ @"默认", @"深色", @"浅色" ];
+                NSArray *themeOptions = @[ @"默认", @"深色", @"浅色", @"自定义" ];
                 [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYThemeStyle"
                                                    optionsArray:themeOptions
                                                      headerText:@"选择主题"

@@ -89,6 +89,35 @@ static UIColor *DYYYGetThemePrimaryColor(void) {
     return nil;
 }
 
+// 应用主题颜色到视图
+static void DYYYApplyThemeToView(UIView *view) {
+    if (!view) return;
+    
+    UIColor *bgColor = DYYYGetThemeBackgroundColor();
+    UIColor *primaryColor = DYYYGetThemePrimaryColor();
+    
+    // 应用背景颜色
+    if (bgColor) {
+        [view setBackgroundColor:bgColor];
+    }
+    
+    // 应用主色调到子视图
+    for (UIView *subview in view.subviews) {
+        if ([subview isKindOfClass:[UIButton class]]) {
+            UIButton *button = (UIButton *)subview;
+            if (primaryColor) {
+                [button setTintColor:primaryColor];
+            }
+        } else if ([subview isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)subview;
+            if (primaryColor) {
+                [label setTextColor:primaryColor];
+            }
+        }
+        DYYYApplyThemeToView(subview);
+    }
+}
+
 static NSDictionary<NSString *, NSString *> *DYYYTopTabTitleMapping(void) {
     static NSString *cachedRawValue = nil;
     static NSDictionary<NSString *, NSString *> *cachedMapping = nil;
@@ -5528,12 +5557,35 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
             NSString *label = subview.accessibilityLabel;
             
             // 应用底栏标题修改
-            if (bottomTitleMapping && bottomTitleMapping[label]) {
+            if (bottomTitleMapping) {
+                // 尝试匹配原始标签
                 NSString *newTitle = bottomTitleMapping[label];
-                if ([subview respondsToSelector:@selector(setTitle:)]) {
-                    [subview performSelector:@selector(setTitle:) withObject:newTitle];
+                if (!newTitle) {
+                    // 尝试匹配包含关系，例如"商城"可能在accessibilityLabel中是"商城Tab"等
+                    for (NSString *originalTitle in bottomTitleMapping) {
+                        if ([label containsString:originalTitle]) {
+                            newTitle = bottomTitleMapping[originalTitle];
+                            break;
+                        }
+                    }
                 }
-                // 不要修改accessibilityLabel，保留原始标签用于识别
+                
+                if (newTitle) {
+                    // 尝试多种设置标题的方法
+                    if ([subview respondsToSelector:@selector(setTitle:)]) {
+                        [subview performSelector:@selector(setTitle:) withObject:newTitle];
+                    }
+                    if ([subview respondsToSelector:@selector(setText:)]) {
+                        [subview performSelector:@selector(setText:) withObject:newTitle];
+                    }
+                    // 检查是否有子视图需要修改
+                    for (UIView *childView in subview.subviews) {
+                        if ([childView isKindOfClass:[UILabel class]]) {
+                            UILabel *labelView = (UILabel *)childView;
+                            labelView.text = newTitle;
+                        }
+                    }
+                }
             }
             
             BOOL shouldHide = ([label containsString:@"商城"] && hideShop) || ([label containsString:@"消息"] && hideMsg) || ([label containsString:@"朋友"] && hideFri) ||
@@ -6810,6 +6862,20 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     if (hideButton && hideButton.isElementsHidden) {
         [hideButton hideUIElements];
     }
+}
+
+- (void)viewDidLoad {
+    %orig;
+    // 应用主题颜色
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ 
+        DYYYApplyThemeToView(self.view);
+    });
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    %orig;
+    // 每次视图出现时应用主题颜色
+    DYYYApplyThemeToView(self.view);
 }
 %end
 
