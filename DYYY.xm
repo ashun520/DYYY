@@ -107,6 +107,15 @@ static UIColor *DYYYGetThemeTabBarBackgroundColor(void) {
     return nil;
 }
 
+// 获取背景图片路径
+static NSString *DYYYGetBackgroundImagePath(NSString *key) {
+    NSString *imagePath = [[NSUserDefaults standardUserDefaults] stringForKey:key];
+    if (imagePath && imagePath.length > 0) {
+        return imagePath;
+    }
+    return nil;
+}
+
 // 应用主题颜色到视图
 static void DYYYApplyThemeToView(UIView *view) {
     if (!view) return;
@@ -115,17 +124,31 @@ static void DYYYApplyThemeToView(UIView *view) {
     UIColor *messageBgColor = DYYYGetThemeMessageBackgroundColor();
     UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
     UIColor *primaryColor = DYYYGetThemePrimaryColor();
+    NSString *messageBgImage = DYYYGetBackgroundImagePath(@"DYYYMessageBackgroundImage");
+    NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
     
-    // 检查视图类型并应用相应的背景颜色
+    // 检查视图类型并应用相应的背景
     NSString *viewClassName = NSStringFromClass([view class]);
     if ([viewClassName containsString:@"Message"] || [viewClassName containsString:@"Chat"]) {
-        if (messageBgColor) {
+        // 优先应用背景图片
+        if (messageBgImage && [[NSFileManager defaultManager] fileExistsAtPath:messageBgImage]) {
+            UIImage *image = [UIImage imageWithContentsOfFile:messageBgImage];
+            if (image) {
+                [view setBackgroundColor:[UIColor colorWithPatternImage:image]];
+            }
+        } else if (messageBgColor) {
             [view setBackgroundColor:messageBgColor];
         } else if (bgColor) {
             [view setBackgroundColor:bgColor];
         }
     } else if ([viewClassName containsString:@"TabBar"] || [viewClassName containsString:@"tabBar"]) {
-        if (tabBarBgColor) {
+        // 优先应用背景图片
+        if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
+            UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
+            if (image) {
+                [view setBackgroundColor:[UIColor colorWithPatternImage:image]];
+            }
+        } else if (tabBarBgColor) {
             [view setBackgroundColor:tabBarBgColor];
         } else if (bgColor) {
             [view setBackgroundColor:bgColor];

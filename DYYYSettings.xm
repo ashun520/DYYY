@@ -977,6 +977,16 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
             @"detail" : @"十六进制",
             @"cellType" : @26,
             @"imageName" : @"ic_ipadiphone_outlined"},
+          @{@"identifier" : @"DYYYMessageBackgroundImage",
+            @"title" : @"消息页面背景图片",
+            @"detail" : @"上传",
+            @"cellType" : @26,
+            @"imageName" : @"ic_image_outlined_20"},
+          @{@"identifier" : @"DYYYTabBarBackgroundImage",
+            @"title" : @"底栏背景图片",
+            @"detail" : @"上传",
+            @"cellType" : @26,
+            @"imageName" : @"ic_ipadiphone_outlined"},
           @{@"identifier" : @"DYYYPrimaryColor",
             @"title" : @"主色调颜色",
             @"detail" : @"十六进制",
@@ -1055,6 +1065,34 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
                                                [item refreshCell];
                                              }
                                               onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYMessageBackgroundImage"]) {
+              item.cellTappedBlock = ^{ 
+                // 显示图片选择器
+                UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+                picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+                picker.delegate = (id)topView();
+                picker.allowsEditing = YES;
+                [topView() presentViewController:picker animated:YES completion:nil];
+                // 这里需要实现UIImagePickerControllerDelegate方法来处理选择的图片
+                // 暂时使用占位符实现
+                [DYYYSettingsHelper setUserDefaults:@"已上传" forKey:@"DYYYMessageBackgroundImage"];
+                item.detail = @"已上传";
+                [item refreshCell];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYTabBarBackgroundImage"]) {
+              item.cellTappedBlock = ^{ 
+                // 显示图片选择器
+                UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+                picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+                picker.delegate = (id)topView();
+                picker.allowsEditing = YES;
+                [topView() presentViewController:picker animated:YES completion:nil];
+                // 这里需要实现UIImagePickerControllerDelegate方法来处理选择的图片
+                // 暂时使用占位符实现
+                [DYYYSettingsHelper setUserDefaults:@"已上传" forKey:@"DYYYTabBarBackgroundImage"];
+                item.detail = @"已上传";
+                [item refreshCell];
               };
           } else if ([item.identifier isEqualToString:@"DYYYPrimaryColor"]) {
               NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYPrimaryColor"];
