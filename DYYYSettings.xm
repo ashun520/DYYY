@@ -1,4 +1,4 @@
-﻿#import "AwemeHeaders.h"
+#import "AwemeHeaders.h"
 #import "DYYYManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <UIKit/UIKit.h>
