@@ -1057,8 +1057,6 @@ static BOOL DYYYShouldHandleSpeedFeatures(void) {
 }
 %end
 
-%end
-
 %hook AWEBaseListViewController
 - (void)viewDidLayoutSubviews {
     %orig;
