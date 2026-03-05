@@ -1244,6 +1244,27 @@ static os_unfair_lock _staticColorCreationLock = OS_UNFAIR_LOCK_INIT;
     return NSOrderedSame;
 }
 
++ (UIColor *)adjustSaturation:(UIColor *)color factor:(CGFloat)factor {
+    if (!color) return nil;
+    CGFloat h, s, b, a;
+    if ([color getHue:&h saturation:&s brightness:&b alpha:&a]) {
+        s = s * factor;
+        s = fmin(fmax(s, 0.0), 1.0);
+        return [UIColor colorWithHue:h saturation:s brightness:b alpha:a];
+    }
+    return color;
+}
+
++ (UIColor *)createGradientColorWithBase:(UIColor *)baseColor {
+    if (!baseColor) return nil;
+    CGFloat h, s, b, a;
+    if ([baseColor getHue:&h saturation:&s brightness:&b alpha:&a]) {
+        b = fmin(b + 0.2, 1.0);
+        return [UIColor colorWithHue:h saturation:s brightness:b alpha:a];
+    }
+    return baseColor;
+}
+
 @end
 
 #pragma mark - External C Functions (外部 C 函数)

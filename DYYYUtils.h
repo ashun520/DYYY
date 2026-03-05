@@ -175,6 +175,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (NSComparisonResult)compareVersion:(NSString *)lhs toVersion:(NSString *)rhs;
 
++ (UIColor *)adjustSaturation:(UIColor *)color factor:(CGFloat)factor;
++ (UIColor *)createGradientColorWithBase:(UIColor *)baseColor;
+
 @end
 
 #pragma mark - External C Functions (外部 C 函数)
