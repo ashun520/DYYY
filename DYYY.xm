@@ -109,10 +109,18 @@ static UIColor *DYYYGetThemeTabBarBackgroundColor(void) {
 
 // 获取背景图片路径
 static NSString *DYYYGetBackgroundImagePath(NSString *key) {
-    NSString *imagePath = [[NSUserDefaults standardUserDefaults] stringForKey:key];
-    if (imagePath && imagePath.length > 0) {
+    // 首先尝试读取新路径 (带 ImagePath 后缀)
+    NSString *imagePath = [[NSUserDefaults standardUserDefaults] stringForKey:[NSString stringWithFormat:@"%@Path", key]];
+    if (imagePath && imagePath.length > 0 && [[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
         return imagePath;
     }
+    
+    // 如果新路径不存在，尝试读取旧路径 (不带后缀)
+    imagePath = [[NSUserDefaults standardUserDefaults] stringForKey:key];
+    if (imagePath && imagePath.length > 0 && [[NSFileManager defaultManager] fileExistsAtPath:imagePath]) {
+        return imagePath;
+    }
+    
     return nil;
 }
 
