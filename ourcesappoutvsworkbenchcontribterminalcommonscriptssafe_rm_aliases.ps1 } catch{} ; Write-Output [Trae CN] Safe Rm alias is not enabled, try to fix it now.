@@ -1,0 +1,447 @@
+* [33m4a382e7[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m feat: DYYY enhancement with theme and customization
+* [33mc46adcb[m[33m ([m[1;31morigin/main[m[33m)[m 修复 ios26 模态透明效果
+* [33mc7df0df[m 修复 37 版本屏蔽面板日常
+* [33m1b513d4[m 修复有乘车码的情况下。。。
+* [33mbed26a6[m 修复错位
+* [33m5fc0878[m 修复侧边入口丢失
+* [33mf4c80e0[m[33m ([m[1;33mtag: [m[1;33mv2.2-8(01032308)[m[33m)[m 修复字体深浅判断
+* [33mb83fb67[m 修复侧边栏入口无法点击
+* [33m9ef30e2[m[33m ([m[1;33mtag: [m[1;33mv2.2-8(01032246)[m[33m)[m 修复若干问题 	-修复37版本全屏失效 	-修复默认播放倍速失效 	-修复悬浮按钮自动恢复倍速失效 	-修复使用协议模糊问题 	-修改使用协议的占位符 	-修复底栏某些情况被覆盖黑色 	-修复侧边栏入口在新版本内未适配的问题 	-修复在没开启毛玻璃的情况下底栏错位变黑的问题
+* [33mfd2f177[m[33m ([m[1;33mtag: [m[1;33mv2.2-8(0103)[m[33m)[m 修复编译错误
+* [33m7ab12f8[m 修复悬浮按钮无法找到控制器
+* [33m4fa952c[m 尝试解决工作流报错?
+* [33mc9e94c0[m Change title
+* [33m9ce8000[m 加入长按上下控制倍速
+* [33ma01c739[m Merge branch 'wtrwx/main' into main
+* [33m4fe5c60[m 恢复备份
+* [33mfee32a3[m 已停止维护
+* [33mbfe4eeb[m 加速GIF（残影不管了）
+* [33m4f03c7c[m[33m ([m[1;33mtag: [m[1;33mv2.1-7[m[33m)[m v2.1-7(完善)
+* [33m0645dd4[m 先提交 不敢动了 成功了！
+* [33m674884c[m 优化GIF转换功能
+* [33m029700c[m Update README.md
+* [33m7661603[m 修复隐藏去汽水听遗留的空白 (#40)
+* [33m0e9428b[m 更新版本至2.1-7，新增复制分享链接功能，优化长按面板的图标和描述文本。（未完善）
+* [33mc365fbf[m 修复概率性保存实况闪退 (#38)
+* [33mc0f8017[m 新增单图实况保存功能 (#37)
+* [33m2125628[m 修复隐藏右侧按钮失效
+* [33m9318fb2[m[33m ([m[1;33mtag: [m[1;33mv2.1-6[m[33m)[m 更新版本
+* [33m4ad626c[m 更新版本
+* [33m4b4c33e[m 新增功能、若干优化 - 新增评论区文案直接复制 - 下载视频时无法操作问题 - 修复表情包无法保存为GIF问题
+* [33ma681f90[m 丢失的自动播放
+* [33mce57baa[m 修改视频秒数位置和字号
+* [33ma203b49[m 修复配置项错误
+* [33m95b3934[m 优化去广告
+* [33m0c5cec7[m 新增移除顶栏朋友
+* [33m116743d[m 优化侧边栏隐藏机制
+* [33mdec867f[m Update DYYY.xm
+* [33m424f569[m Update DYYY.xm
+* [33mcc6a9ea[m Update DYYYSettingViewController.m
+* [33m3170710[m Update AwemeHeaders.h
+* [33m288b433[m 修复错误
+* [33mc150045[m 修复评论图标错误读取
+* [33m9bab597[m[33m ([m[1;33mtag: [m[1;33mv2.1-5[m[33m)[m 修复逻辑错误
+* [33m4475fd2[m 新增隐藏头像列表与左侧边栏
+*   [33m81c8f21[m Merge branch 'pr/21'
+[32m|[m[33m\[m  
+[32m|[m *   [33md89226b[m Merge branch 'main' into main
+[32m|[m [34m|[m[32m\[m  
+[32m|[m [34m|[m[32m/[m  
+[32m|[m[32m/[m[34m|[m   
+* [34m|[m [33m2a05db6[m 添加双击视频打开评论区
+* [34m|[m [33m3bc1895[m 让顶栏支持长按排序
+* [34m|[m [33mda26747[m 新增隐藏关注直播，屏蔽广告，优化表情包保存逻辑改为保存为动图 Gif
+* [34m|[m [33m8ca17be[m 添加双击视频打开评论区
+* [34m|[m [33m87cbed1[m 添加显示视频播放进度条秒数
+* [34m|[m [33m4616ca6[m 新增隐藏关注直播，屏蔽广告，优化表情包保存逻辑改为保存为动图 Gif
+* [34m|[m [33m8beddcd[m 添加双击视频打开评论区
+* [34m|[m [33mff2ad52[m 添加显示视频播放进度条秒数
+* [34m|[m [33m422d489[m 让顶栏支持长按排序
+* [34m|[m [33mfac8ede[m Update DYYY.xm
+* [34m|[m [33mbd2e849[m Update DYYYSettingViewController.m
+* [34m|[m [33m6f3901d[m 修复部分设备评论区图标失效
+* [34m|[m [33m4a20a1e[m 修复部分设备评论图标失效
+* [34m|[m [33m72dfc50[m Bump version
+* [34m|[m [33m211d41f[m 添加双击视频打开评论区
+* [34m|[m [33m2994ad7[m 添加显示视频播放进度条秒数
+[35m|[m * [33m22c4cc9[m 让顶栏支持长按排序
+[35m|[m * [33m6721748[m Update DYYY.xm
+[35m|[m * [33md8784a7[m Update DYYYSettingViewController.m
+[35m|[m * [33me4029ca[m 修复部分设备评论区图标失效
+[35m|[m * [33mb5dae54[m 修复部分设备评论图标失效
+[35m|[m * [33m367391e[m Bump version
+[35m|[m * [33mc197cfd[m 新增隐藏关注直播，屏蔽广告，优化表情包保存逻辑改为保存为动图 Gif
+[35m|[m * [33mfc21b06[m 添加双击视频打开评论区
+[35m|[m * [33md13a2ea[m 添加显示视频播放进度条秒数
+[35m|[m[35m/[m  
+* [33m4476ba1[m[33m ([m[1;33mtag: [m[1;33mv2.1-4[m[33m)[m 强制启用评论区表情包保存按钮
+* [33m6bca524[m 完美移除评论区图片水印 - 不是正式版 - 后面提交用中文描述
+* [33m9306696[m 无水印保存评论区图片不完美()
+* [33m5c97373[m remove comment photo watermark
+* [33me834be8[m Fullscreen logic
+* [33m167e797[m Optimize
+* [33mdf24f17[m Support new panel
+* [33m642b38a[m[33m ([m[1;33mtag: [m[1;33mv2.1-3[m[33m)[m Bump version
+* [33md8efaad[m Comment's LivePhoto NotWaterMark and Bump version
+* [33made6660[m Fix full screen misalignment and
+* [33mcc76b9b[m Optimize Fullscreen
+* [33m818811a[m Optimize layout logic
+* [33m0d6dac2[m[33m ([m[1;33mtag: [m[1;33mv2.1-2[m[33m)[m Bump Version
+* [33mb5cffa9[m[33m ([m[1;33mtag: [m[1;33mv2.1-1[m[33m)[m Bump Version
+* [33m45003a4[m Update
+* [33m8bb8ee3[m Disclaimer Agreement
+* [33m7c9f369[m[33m ([m[1;33mtag: [m[1;33mv2.0-9_End[m[33m)[m End
+* [33mb22c0c7[m Final Optimization
+* [33m52791a3[m Refactor location logic
+* [33m038ca84[m[33m ([m[1;33mtag: [m[1;33mv2.0-9[m[33m)[m Bump Version
+*   [33m1ffc020[m Merge branch 'pr-17'
+[36m|[m[1;31m\[m  
+[36m|[m * [33m200fc85[m 修复原生属地BUG
+* [1;31m|[m [33m977c384[m Optimize full-screen display and interface effects
+* [1;31m|[m [33mfe5762e[m Update build.yml
+[1;31m|[m[1;31m/[m  
+* [33maea80df[m Optimize
+* [33m46fe8ac[m Optimize
+* [33mfda04ae[m Repair the picture and text upward
+* [33mc92aebf[m Optimize
+* [33m9f8f286[m Optimize GitHub Actions build workflow
+* [33m1ca49ab[m Optimize story page and interface display effects
+* [33m5f6a0d6[m Optimize the display of territory
+* [33m261479c[m[33m ([m[1;33mtag: [m[1;33mv2.0-8[m[33m)[m Optimization
+* [33m83f4507[m Bump Version
+* [33m728325f[m Fix the display problem of IP location label
+*   [33m4e17d90[m[33m ([m[1;33mtag: [m[1;33mv2.0-7[m[33m)[m Merge branch 'pr-16'
+[1;32m|[m[1;33m\[m  
+[1;32m|[m * [33m8fee108[m Update DYYYSettingViewController.m
+[1;32m|[m * [33md32521d[m Update DYYY.xm
+[1;32m|[m * [33mb1a8fa2[m Update AwemeHeaders.h
+[1;32m|[m * [33me21737d[m Update DYYYSettingViewController.m
+[1;32m|[m * [33mee16da8[m Update DYYY.xm
+[1;32m|[m * [33m4d02040[m Update AwemeHeaders.h
+[1;32m|[m * [33m84adfbc[m Update DYYY.xm
+[1;32m|[m * [33m1c01fbb[m Update AwemeHeaders.h
+[1;32m|[m * [33mc6645ee[m Update DYYYSettingViewController.m
+[1;32m|[m * [33m4710f50[m Update DYYY.xm
+[1;32m|[m * [33m4faa59b[m Update AwemeHeaders.h
+* [1;33m|[m [33m87e5add[m Bump Version
+* [1;33m|[m [33m1b7caa9[m Added frosted glass effect and full-screen display function to the comment area
+[1;33m|[m[1;33m/[m  
+* [33m6538162[m Complete interface declaration
+*   [33mf72a8ca[m Merge branch 'main' into 2.0-6
+[1;34m|[m[1;35m\[m  
+[1;34m|[m * [33mb35e104[m Optimize the settings interface and live broadcast interception logic
+* [1;35m|[m [33ma94b6f3[m Update DYYYSettingViewController.m
+
+                   SSUUMMMMAARRYY OOFF LLEESSSS CCOOMMMMAANNDDSS
+
+      Commands marked with * may be preceded by a number, _N.
+      Notes in parentheses indicate the behavior if _N is given.
+      A key preceded by a caret indicates the Ctrl key; thus ^K is ctrl-K.
+
+  h  H                 Display this help.
+  q  :q  Q  :Q  ZZ     Exit.
+ ---------------------------------------------------------------------------
+
+                           MMOOVVIINNGG
+
+  e  ^E  j  ^N  CR  *  Forward  one line   (or _N lines).
+  y  ^Y  k  ^K  ^P  *  Backward one line   (or _N lines).
+  ESC-j             *  Forward  one file line (or _N file lines).
+  ESC-k             *  Backward one file line (or _N file lines).
+  f  ^F  ^V  SPACE  *  Forward  one window (or _N lines).
+  b  ^B  ESC-v      *  Backward one window (or _N lines).
+  z                 *  Forward  one window (and set window to _N).
+  w                 *  Backward one window (and set window to _N).
+  ESC-SPACE         *  Forward  one window, but don't stop at end-of-file.
+  ESC-b             *  Backward one window, but don't stop at beginning-of-file.
+  d  ^D             *  Forward  one half-window (and set half-window to _N).
+  u  ^U             *  Backward one half-window (and set half-window to _N).
+  ESC-)  RightArrow *  Right one half screen width (or _N positions).
+  ESC-(  LeftArrow  *  Left  one half screen width (or _N positions).
+  ESC-}  ^RightArrow   Right to last column displayed.
+  ESC-{  ^LeftArrow    Left  to first column.
+  F                    Forward forever; like "tail -f".
+  ESC-F                Like F but stop when search pattern is found.
+  r  ^R  ^L            Repaint screen.
+  R                    Repaint screen, discarding buffered input.
+        ---------------------------------------------------
+        Default "window" is the screen height.
+        Default "half-window" is half of the screen height.
+ ---------------------------------------------------------------------------
+
+                          SSEEAARRCCHHIINNGG
+
+  /_p_a_t_t_e_r_n          *  Search forward for (_N-th) matching line.
+  ?_p_a_t_t_e_r_n          *  Search backward for (_N-th) matching line.
+  n                 *  Repeat previous search (for _N-th occurrence).
+  N                 *  Repeat previous search in reverse direction.
+  ESC-n             *  Repeat previous search, spanning files.
+  ESC-N             *  Repeat previous search, reverse dir. & spanning files.
+  ^O^N  ^On         *  Search forward for (_N-th) OSC8 hyperlink.
+  ^O^P  ^Op         *  Search backward for (_N-th) OSC8 hyperlink.
+  ^O^L  ^Ol            Jump to the currently selected OSC8 hyperlink.
+  ESC-u                Undo (toggle) search highlighting.
+  ESC-U                Clear search highlighting.
+  &_p_a_t_t_e_r_n          *  Display only matching lines.
+        ---------------------------------------------------
+		Search is case-sensitive unless changed with -i or -I.
+        A search pattern may begin with one or more of:
+        ^N or !  Search for NON-matching lines.
+        ^E or *  Search multiple files (pass thru END OF FILE).
+        ^F or @  Start search at FIRST file (for /) or last file (for ?).
+        ^K       Highlight matches, but don't move (KEEP position).
+        ^R       Don't use REGULAR EXPRESSIONS.
+        ^S _n     Search for match in _n-th parenthesized subpattern.
+        ^W       WRAP search if no match found.
+        ^L       Enter next character literally into pattern.
+ ---------------------------------------------------------------------------
+
+                           JJUUMMPPIINNGG
+
+  g  <  ESC-<       *  Go to first line in file (or line _N).
+  G  >  ESC->       *  Go to last line in file (or line _N).
+  p  %              *  Go to beginning of file (or _N percent into file).
+  t                 *  Go to the (_N-th) next tag.
+  T                 *  Go to the (_N-th) previous tag.
+  {  (  [           *  Find close bracket } ) ].
+  }  )  ]           *  Find open bracket { ( [.
+  ESC-^F _<_c_1_> _<_c_2_>  *  Find close bracket _<_c_2_>.
+  ESC-^B _<_c_1_> _<_c_2_>  *  Find open bracket _<_c_1_>.
+        ---------------------------------------------------
+        Each "find close bracket" command goes forward to the close bracket 
+          matching the (_N-th) open bracket in the top line.
+        Each "find open bracket" command goes backward to the open bracket 
+          matching the (_N-th) close bracket in the bottom line.
+
+  m_<_l_e_t_t_e_r_>            Mark the current top line with <letter>.
+  M_<_l_e_t_t_e_r_>            Mark the current bottom line with <letter>.
+  '_<_l_e_t_t_e_r_>            Go to a previously marked position.
+  ''                   Go to the previous position.
+  ^X^X                 Same as '.
+  ESC-m_<_l_e_t_t_e_r_>        Clear a mark.
+        ---------------------------------------------------
+        A mark is any upper-case or lower-case letter.
+        Certain marks are predefined:
+             ^  means  beginning of the file
+             $  means  end of the file
+ ---------------------------------------------------------------------------
+
+                        CCHHAANNGGIINNGG FFIILLEESS
+
+  :e [_f_i_l_e]            Examine a new file.
+  ^X^V                 Same as :e.
+  :n                *  Examine the (_N-th) next file from the command line.
+  :p                *  Examine the (_N-th) previous file from the command line.
+  :x                *  Examine the first (or _N-th) file from the command line.
+  ^O^O                 Open the currently selected OSC8 hyperlink.
+  :d                   Delete the current file from the command line list.
+  =  ^G  :f            Print current file name.
+ ---------------------------------------------------------------------------
+
+                    MMIISSCCEELLLLAANNEEOOUUSS CCOOMMMMAANNDDSS
+
+  -_<_f_l_a_g_>              Toggle a command line option [see OPTIONS below].
+  --_<_n_a_m_e_>             Toggle a command line option, by name.
+  __<_f_l_a_g_>              Display the setting of a command line option.
+  ___<_n_a_m_e_>             Display the setting of an option, by name.
+  +_c_m_d                 Execute the less cmd each time a new file is examined.
+
+  !_c_o_m_m_a_n_d             Execute the shell command with $SHELL.
+  #_c_o_m_m_a_n_d             Execute the shell command, expanded like a prompt.
+  |XX_c_o_m_m_a_n_d            Pipe file between current pos & mark XX to shell command.
+  s _f_i_l_e               Save input to a file.
+  v                    Edit the current file with $VISUAL or $EDITOR.
+  V                    Print version number of "less".
+ ---------------------------------------------------------------------------
+
+                           OOPPTTIIOONNSS
+
+        Most options may be changed either on the command line,
+        or from within less by using the - or -- command.
+        Options may be given in one of two forms: either a single
+        character preceded by a -, or a name preceded by --.
+
+  -?  ........  --help
+                  Display help (from command line).
+  -a  ........  --search-skip-screen
+                  Search skips current screen.
+  -A  ........  --SEARCH-SKIP-SCREEN
+                  Search starts just after target line.
+  -b [_N]  ....  --buffers=[_N]
+                  Number of buffers.
+  -B  ........  --auto-buffers
+                  Don't automatically allocate buffers for pipes.
+  -c  ........  --clear-screen
+                  Repaint by clearing rather than scrolling.
+  -d  ........  --dumb
+                  Dumb terminal.
+  -D xx_c_o_l_o_r  .  --color=xx_c_o_l_o_r
+                  Set screen colors.
+  -e  -E  ....  --quit-at-eof  --QUIT-AT-EOF
+                  Quit at end of file.
+  -f  ........  --force
+                  Force open non-regular files.
+  -F  ........  --quit-if-one-screen
+                  Quit if entire file fits on first screen.
+  -g  ........  --hilite-search
+                  Highlight only last match for searches.
+  -G  ........  --HILITE-SEARCH
+                  Don't highlight any matches for searches.
+  -h [_N]  ....  --max-back-scroll=[_N]
+                  Backward scroll limit.
+  -i  ........  --ignore-case
+                  Ignore case in searches that do not contain uppercase.
+  -I  ........  --IGNORE-CASE
+                  Ignore case in all searches.
+  -j [_N]  ....  --jump-target=[_N]
+                  Screen position of target lines.
+  -J  ........  --status-column
+                  Display a status column at left edge of screen.
+  -k _f_i_l_e  ...  --lesskey-file=_f_i_l_e
+                  Use a compiled lesskey file.
+  -K  ........  --quit-on-intr
+                  Exit less in response to ctrl-C.
+  -L  ........  --no-lessopen
+                  Ignore the LESSOPEN environment variable.
+  -m  -M  ....  --long-prompt  --LONG-PROMPT
+                  Set prompt style.
+  -n .........  --line-numbers
+                  Suppress line numbers in prompts and messages.
+  -N .........  --LINE-NUMBERS
+                  Display line number at start of each line.
+  -o [_f_i_l_e] ..  --log-file=[_f_i_l_e]
+                  Copy to log file (standard input only).
+  -O [_f_i_l_e] ..  --LOG-FILE=[_f_i_l_e]
+                  Copy to log file (unconditionally overwrite).
+  -p _p_a_t_t_e_r_n .  --pattern=[_p_a_t_t_e_r_n]
+                  Start at pattern (from command line).
+  -P [_p_r_o_m_p_t]   --prompt=[_p_r_o_m_p_t]
+                  Define new prompt.
+  -q  -Q  ....  --quiet  --QUIET  --silent --SILENT
+                  Quiet the terminal bell.
+  -r  -R  ....  --raw-control-chars  --RAW-CONTROL-CHARS
+                  Output "raw" control characters.
+  -s  ........  --squeeze-blank-lines
+                  Squeeze multiple blank lines.
+  -S  ........  --chop-long-lines
+                  Chop (truncate) long lines rather than wrapping.
+  -t _t_a_g  ....  --tag=[_t_a_g]
+                  Find a tag.
+  -T [_t_a_g_s_f_i_l_e] --tag-file=[_t_a_g_s_f_i_l_e]
+                  Use an alternate tags file.
+  -u  -U  ....  --underline-special  --UNDERLINE-SPECIAL
+                  Change handling of backspaces, tabs and carriage returns.
+  -V  ........  --version
+                  Display the version number of "less".
+  -w  ........  --hilite-unread
+                  Highlight first new line after forward-screen.
+  -W  ........  --HILITE-UNREAD
+                  Highlight first new line after any forward movement.
+  -x [_N[,...]]  --tabs=[_N[,...]]
+                  Set tab stops.
+  -X  ........  --no-init
+                  Don't use termcap init/deinit strings.
+  -y [_N]  ....  --max-forw-scroll=[_N]
+                  Forward scroll limit.
+  -z [_N]  ....  --window=[_N]
+                  Set size of window.
+  -" [_c[_c]]  .  --quotes=[_c[_c]]
+                  Set shell quote characters.
+  -~  ........  --tilde
+                  Don't display tildes after end of file.
+  -# [_N]  ....  --shift=[_N]
+                  Set horizontal scroll amount (0 = one half screen width).
+
+                --exit-follow-on-close
+                  Exit F command on a pipe when writer closes pipe.
+                --file-size
+                  Automatically determine the size of the input file.
+                --follow-name
+                  The F command changes files if the input file is renamed.
+                --form-feed
+                  Stop scrolling when a form feed character is reached.
+                --header=[_L[,_C[,_N]]]
+                  Use _L lines (starting at line _N) and _C columns as headers.
+                --incsearch
+                  Search file as each pattern character is typed in.
+                --intr=[_C]
+                  Use _C instead of ^X to interrupt a read.
+                --lesskey-context=_t_e_x_t
+                  Use lesskey source file contents.
+                --lesskey-src=_f_i_l_e
+                  Use a lesskey source file.
+                --line-num-width=[_N]
+                  Set the width of the -N line number field to _N characters.
+                --match-shift=[_N]
+                  Show at least _N characters to the left of a search match.
+                --modelines=[_N]
+                  Read _N lines from the input file and look for vim modelines.
+                --mouse
+                  Enable mouse input.
+                --no-edit-warn
+                  Don't warn when using v command on a file opened via LESSOPEN.
+                --no-keypad
+                  Don't send termcap keypad init/deinit strings.
+                --no-histdups
+                  Remove duplicates from command history.
+                --no-number-headers
+                  Don't give line numbers to header lines.
+                --no-paste
+                  Ignore pasted input.
+                --no-search-header-lines
+                  Searches do not include header lines.
+                --no-search-header-columns
+                  Searches do not include header columns.
+                --no-search-headers
+                  Searches do not include header lines or columns.
+                --no-vbell
+                  Disable the terminal's visual bell.
+                --redraw-on-quit
+                  Redraw final screen when quitting.
+                --rscroll=[_C]
+                  Set the character used to mark truncated lines.
+                --save-marks
+                  Retain marks across invocations of less.
+                --search-options=[EFKNRW-]
+                  Set default options for every search.
+                --show-preproc-errors
+                  Display a message if preprocessor exits with an error status.
+                --proc-backspace
+                  Process backspaces for bold/underline.
+                --PROC-BACKSPACE
+                  Treat backspaces as control characters.
+                --proc-return
+                  Delete carriage returns before newline.
+                --PROC-RETURN
+                  Treat carriage returns as control characters.
+                --proc-tab
+                  Expand tabs to spaces.
+                --PROC-TAB
+                  Treat tabs as control characters.
+                --status-col-width=[_N]
+                  Set the width of the -J status column to _N characters.
+                --status-line
+                  Highlight or color the entire line containing a mark.
+                --use-backslash
+                  Subsequent options use backslash as escape char.
+                --use-color
+                  Enables colored text.
+                --wheel-lines=[_N]
+                  Each click of the mouse wheel moves _N lines.
+                --wordwrap
+                  Wrap lines at spaces.
+
+
+ ---------------------------------------------------------------------------
+
+                          LLIINNEE EEDDIITTIINNGG
+
+        These keys can be used to edit text being entered 
+        on the "command line" at the bottom of the screen.
+
+ RightArrow ..................... ESC-l ... Move cursor right one character.
+ LeftArrow ...................... ESC-h ... Move cursor left one character.
+ ctrl-RightArrow  ESC-RightArrow  ESC-w ... Move cursor right one word.
+ ctrl-LeftArrow   ESC-LeftArrow   ESC-b ... Move cursor left one word.
+ HOME ........................... ESC-0 ... Move cursor to start of line.
+ END ............................ ESC-$ ... Move cursor to end of line.
