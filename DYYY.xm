@@ -92,8 +92,11 @@ static UIColor *DYYYGetThemePrimaryColor(void) {
 // 获取消息页面背景色
 static UIColor *DYYYGetThemeMessageBackgroundColor(void) {
     NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYMessageBackgroundColor"];
+    NSLog(@"[DYYY] DYYYGetThemeMessageBackgroundColor: colorHex=%@", colorHex);
     if (colorHex && colorHex.length > 0) {
-        return [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+        UIColor *color = [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+        NSLog(@"[DYYY] DYYYGetThemeMessageBackgroundColor: color=%@", color);
+        return color;
     }
     return nil;
 }
@@ -101,8 +104,11 @@ static UIColor *DYYYGetThemeMessageBackgroundColor(void) {
 // 获取底栏背景色
 static UIColor *DYYYGetThemeTabBarBackgroundColor(void) {
     NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYTabBarBackgroundColor"];
+    NSLog(@"[DYYY] DYYYGetThemeTabBarBackgroundColor: colorHex=%@", colorHex);
     if (colorHex && colorHex.length > 0) {
-        return [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+        UIColor *color = [DYYYUtils colorFromSchemeHexString:colorHex targetWidth:1.0];
+        NSLog(@"[DYYY] DYYYGetThemeTabBarBackgroundColor: color=%@", color);
+        return color;
     }
     return nil;
 }
@@ -5607,10 +5613,13 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
     UIColor *bgColor = DYYYGetThemeBackgroundColor();
     
+    NSLog(@"[DYYY] AWENormalModeTabBar layoutSubviews: tabBarBgImage=%@, tabBarBgColor=%@, bgColor=%@", tabBarBgImage, tabBarBgColor, bgColor);
+    
     // 优先应用背景图片
     if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
         UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
         if (image) {
+            NSLog(@"[DYYY] Applying tabBar background image");
             [self setBackgroundColor:[UIColor colorWithPatternImage:image]];
             // 同时设置背景视图的颜色
             for (UIView *subview in self.subviews) {
@@ -5621,6 +5630,7 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
         }
     } else if (tabBarBgColor) {
         // 其次应用底栏专用颜色
+        NSLog(@"[DYYY] Applying tabBar background color: %@", tabBarBgColor);
         [self setBackgroundColor:tabBarBgColor];
         for (UIView *subview in self.subviews) {
             if ([subview isKindOfClass:barBackgroundClass]) {
@@ -5629,6 +5639,7 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
         }
     } else if (bgColor) {
         // 最后应用全局背景颜色
+        NSLog(@"[DYYY] Applying global background color: %@", bgColor);
         [self setBackgroundColor:bgColor];
         for (UIView *subview in self.subviews) {
             if ([subview isKindOfClass:barBackgroundClass]) {
