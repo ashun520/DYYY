@@ -1,4 +1,4 @@
-#import "AwemeHeaders.h"
+﻿#import "AwemeHeaders.h"
 #import "DYYYManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <UIKit/UIKit.h>
@@ -992,6 +992,26 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
             @"detail" : @"十六进制",
             @"cellType" : @26,
             @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYEnableGradientEffect",
+            @"title" : @"启用渐变效果",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_gradient_outlined_20"},
+          @{@"identifier" : @"DYYYRandomColorMode",
+            @"title" : @"随机颜色模式",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_random_outlined_20"},
+          @{@"identifier" : @"DYYYAutoThemeByTime",
+            @"title" : @"按时段自动主题",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_time_outlined_20"},
+          @{@"identifier" : @"DYYYColorfulText",
+            @"title" : @"彩色文字效果",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_text_outlined_20"},
       ];
 
       for (NSDictionary *dict in themeSettings) {
@@ -1107,6 +1127,46 @@ void showDYYYSettingsVC(UIViewController *rootVC, BOOL hasAgreed) {
                                                [item refreshCell];
                                              }
                                               onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYEnableGradientEffect"]) {
+              BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableGradientEffect"];
+              item.detail = enabled ? @"开启" : @"关闭";
+              item.cellTappedBlock = ^{ 
+                BOOL newValue = ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableGradientEffect"];
+                [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"DYYYEnableGradientEffect"];
+                item.detail = newValue ? @"开启" : @"关闭";
+                [item refreshCell];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"DYYYThemeDidChange" object:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYRandomColorMode"]) {
+              BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYRandomColorMode"];
+              item.detail = enabled ? @"开启" : @"关闭";
+              item.cellTappedBlock = ^{ 
+                BOOL newValue = ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYRandomColorMode"];
+                [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"DYYYRandomColorMode"];
+                item.detail = newValue ? @"开启" : @"关闭";
+                [item refreshCell];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"DYYYThemeDidChange" object:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYAutoThemeByTime"]) {
+              BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYAutoThemeByTime"];
+              item.detail = enabled ? @"开启" : @"关闭";
+              item.cellTappedBlock = ^{ 
+                BOOL newValue = ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYAutoThemeByTime"];
+                [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"DYYYAutoThemeByTime"];
+                item.detail = newValue ? @"开启" : @"关闭";
+                [item refreshCell];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"DYYYThemeDidChange" object:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYColorfulText"]) {
+              BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYColorfulText"];
+              item.detail = enabled ? @"开启" : @"关闭";
+              item.cellTappedBlock = ^{ 
+                BOOL newValue = ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYColorfulText"];
+                [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"DYYYColorfulText"];
+                item.detail = newValue ? @"开启" : @"关闭";
+                [item refreshCell];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"DYYYThemeDidChange" object:nil];
               };
           }
           [themeItems addObject:item];

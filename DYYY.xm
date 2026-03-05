@@ -91,6 +91,34 @@ static UIColor *DYYYGetThemePrimaryColor(void) {
 
 // 获取消息页面背景色
 static UIColor *DYYYGetThemeMessageBackgroundColor(void) {
+    // 检查是否启用随机颜色模式
+    BOOL randomColorMode = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYRandomColorMode"];
+    if (randomColorMode) {
+        CGFloat r = arc4random_uniform(256) / 255.0;
+        CGFloat g = arc4random_uniform(256) / 255.0;
+        CGFloat b = arc4random_uniform(256) / 255.0;
+        return [UIColor colorWithRed:r green:g blue:b alpha:1.0];
+    }
+    
+    // 检查是否启用按时段自动主题
+    BOOL autoThemeByTime = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYAutoThemeByTime"];
+    if (autoThemeByTime) {
+        NSDate *now = [NSDate date];
+        NSCalendar *calendar = [NSCalendar currentCalendar];
+        NSDateComponents *components = [calendar components:NSCalendarUnitHour fromDate:now];
+        NSInteger hour = [components hour];
+        
+        if (hour >= 6 && hour < 12) {
+            return [UIColor colorWithRed:0.7 green:0.9 blue:1.0 alpha:1.0];
+        } else if (hour >= 12 && hour < 18) {
+            return [UIColor colorWithRed:1.0 green:0.7 blue:0.3 alpha:1.0];
+        } else if (hour >= 18 && hour < 22) {
+            return [UIColor colorWithRed:0.7 green:0.5 blue:0.9 alpha:1.0];
+        } else {
+            return [UIColor colorWithRed:0.15 green:0.15 blue:0.35 alpha:1.0];
+        }
+    }
+    
     NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYMessageBackgroundColor"];
     NSLog(@"[DYYY] DYYYGetThemeMessageBackgroundColor: colorHex=%@", colorHex);
     if (colorHex && colorHex.length > 0) {
@@ -103,6 +131,34 @@ static UIColor *DYYYGetThemeMessageBackgroundColor(void) {
 
 // 获取底栏背景色
 static UIColor *DYYYGetThemeTabBarBackgroundColor(void) {
+    // 检查是否启用随机颜色模式
+    BOOL randomColorMode = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYRandomColorMode"];
+    if (randomColorMode) {
+        CGFloat r = arc4random_uniform(256) / 255.0;
+        CGFloat g = arc4random_uniform(256) / 255.0;
+        CGFloat b = arc4random_uniform(256) / 255.0;
+        return [UIColor colorWithRed:r green:g blue:b alpha:1.0];
+    }
+    
+    // 检查是否启用按时段自动主题
+    BOOL autoThemeByTime = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYAutoThemeByTime"];
+    if (autoThemeByTime) {
+        NSDate *now = [NSDate date];
+        NSCalendar *calendar = [NSCalendar currentCalendar];
+        NSDateComponents *components = [calendar components:NSCalendarUnitHour fromDate:now];
+        NSInteger hour = [components hour];
+        
+        if (hour >= 6 && hour < 12) {
+            return [UIColor colorWithRed:0.6 green:0.8 blue:1.0 alpha:1.0];
+        } else if (hour >= 12 && hour < 18) {
+            return [UIColor colorWithRed:1.0 green:0.6 blue:0.2 alpha:1.0];
+        } else if (hour >= 18 && hour < 22) {
+            return [UIColor colorWithRed:0.6 green:0.4 blue:0.8 alpha:1.0];
+        } else {
+            return [UIColor colorWithRed:0.1 green:0.1 blue:0.3 alpha:1.0];
+        }
+    }
+    
     NSString *colorHex = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYTabBarBackgroundColor"];
     NSLog(@"[DYYY] DYYYGetThemeTabBarBackgroundColor: colorHex=%@", colorHex);
     if (colorHex && colorHex.length > 0) {
@@ -138,31 +194,28 @@ static void DYYYApplyThemeToView(UIView *view) {
     UIColor *messageBgColor = DYYYGetThemeMessageBackgroundColor();
     UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
     UIColor *primaryColor = DYYYGetThemePrimaryColor();
-    NSString *messageBgImage = DYYYGetBackgroundImagePath(@"DYYYMessageBackgroundImage");
-    NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
+    
+    // 检查是否启用渐变效果
+    BOOL enableGradient = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableGradientEffect"];
+    // 检查是否启用彩色文字
+    BOOL colorfulText = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYColorfulText"];
     
     // 检查视图类型并应用相应的背景
     NSString *viewClassName = NSStringFromClass([view class]);
     if ([viewClassName containsString:@"Message"] || [viewClassName containsString:@"Chat"]) {
-        // 优先应用背景图片
-        if (messageBgImage && [[NSFileManager defaultManager] fileExistsAtPath:messageBgImage]) {
-            UIImage *image = [UIImage imageWithContentsOfFile:messageBgImage];
-            if (image) {
-                [view setBackgroundColor:[UIColor colorWithPatternImage:image]];
+        if (messageBgColor) {
+            if (enableGradient) {
+                messageBgColor = [DYYYUtils createGradientColorWithBase:messageBgColor];
             }
-        } else if (messageBgColor) {
             [view setBackgroundColor:messageBgColor];
         } else if (bgColor) {
             [view setBackgroundColor:bgColor];
         }
     } else if ([viewClassName containsString:@"TabBar"] || [viewClassName containsString:@"tabBar"]) {
-        // 优先应用背景图片
-        if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
-            UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
-            if (image) {
-                [view setBackgroundColor:[UIColor colorWithPatternImage:image]];
+        if (tabBarBgColor) {
+            if (enableGradient) {
+                tabBarBgColor = [DYYYUtils createGradientColorWithBase:tabBarBgColor];
             }
-        } else if (tabBarBgColor) {
             [view setBackgroundColor:tabBarBgColor];
         } else if (bgColor) {
             [view setBackgroundColor:bgColor];
@@ -177,18 +230,30 @@ static void DYYYApplyThemeToView(UIView *view) {
     for (UIView *subview in view.subviews) {
         if ([subview isKindOfClass:[UIButton class]]) {
             UIButton *button = (UIButton *)subview;
-            if (primaryColor) {
+            if (primaryColor && !colorfulText) {
                 [button setTintColor:primaryColor];
                 [button setTitleColor:primaryColor forState:UIControlStateNormal];
             }
+            if (colorfulText) {
+                CGFloat r = arc4random_uniform(256) / 255.0;
+                CGFloat g = arc4random_uniform(256) / 255.0;
+                CGFloat b = arc4random_uniform(256) / 255.0;
+                [button setTitleColor:[UIColor colorWithRed:r green:g blue:b alpha:1.0] forState:UIControlStateNormal];
+            }
         } else if ([subview isKindOfClass:[UILabel class]]) {
             UILabel *label = (UILabel *)subview;
-            if (primaryColor) {
+            if (primaryColor && !colorfulText) {
                 [label setTextColor:primaryColor];
+            }
+            if (colorfulText) {
+                static NSInteger colorIndex = 0;
+                colorIndex++;
+                CGFloat hue = fmod(colorIndex * 0.1, 1.0);
+                [label setTextColor:[UIColor colorWithHue:hue saturation:0.8 brightness:0.9 alpha:1.0]];
             }
         } else if ([subview isKindOfClass:[UITextField class]]) {
             UITextField *textField = (UITextField *)subview;
-            if (primaryColor) {
+            if (primaryColor && !colorfulText) {
                 [textField setTextColor:primaryColor];
                 [textField setTintColor:primaryColor];
             }
