@@ -5477,6 +5477,51 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     }
 }
 
+- (void)layoutSubviews {
+    %orig;
+    
+    // 应用底栏背景颜色或图片
+    NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
+    UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
+    UIColor *bgColor = DYYYGetThemeBackgroundColor();
+    
+    // 优先应用背景图片
+    if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
+        UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
+        if (image) {
+            [self setBackgroundColor:[UIColor colorWithPatternImage:image]];
+            // 同时设置背景视图的颜色
+            for (UIView *subview in self.subviews) {
+                if ([subview isKindOfClass:barBackgroundClass]) {
+                    [subview setBackgroundColor:[UIColor colorWithPatternImage:image]];
+                }
+            }
+            return;
+        }
+    }
+    
+    // 其次应用底栏专用颜色
+    if (tabBarBgColor) {
+        [self setBackgroundColor:tabBarBgColor];
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:barBackgroundClass]) {
+                [subview setBackgroundColor:tabBarBgColor];
+            }
+        }
+        return;
+    }
+    
+    // 最后应用全局背景颜色
+    if (bgColor) {
+        [self setBackgroundColor:bgColor];
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:barBackgroundClass]) {
+                [subview setBackgroundColor:bgColor];
+            }
+        }
+    }
+}
+
 %new
 - (void)initializeOriginalTabBarHeight {
     if (originalTabBarHeight != kInvalidHeight) {
@@ -6988,6 +7033,14 @@ static void DYYYRemoveKeyboardObserver(void) {
     initTargetClassNames();
 
     updateGlobalTransparencyCache();
+    
+    // 延迟应用全局主题，确保所有视图已加载
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UIWindow *keyWindow = getKeyWindow();
+        if (keyWindow) {
+            DYYYApplyThemeToView(keyWindow);
+        }
+    });
 
     [[NSUserDefaults standardUserDefaults] addObserver:(NSObject *)self forKeyPath:kDYYYGlobalTransparencyKey options:NSKeyValueObservingOptionNew context:DYYYGlobalTransparencyContext];
 
@@ -7039,11 +7092,25 @@ static void DYYYRemoveKeyboardObserver(void) {
                                                                                     isAppActive = NO;
                                                                                     updateClearButtonVisibility();
                                                                                   }];
+        
+        // 监听主题设置变更
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applyThemeSettings) name:NSUserDefaultsDidChangeNotification object:nil];
     } else {
         DYYYRemoveAppLifecycleObservers();
     }
 
     return result;
+}
+
+%new
+- (void)applyThemeSettings {
+    // 当主题设置变更时，重新应用主题到所有可见窗口
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UIWindow *keyWindow = getKeyWindow();
+        if (keyWindow) {
+            DYYYApplyThemeToView(keyWindow);
+        }
+    });
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
