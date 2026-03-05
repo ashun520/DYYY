@@ -5477,11 +5477,6 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     }
 }
 
-- (void)layoutSubviews {
-    %orig;
-    [self dyyy_applyThemeBackground];
-}
-
 %new
 - (void)dyyy_applyThemeBackground {
     // 应用底栏背景颜色或图片
@@ -5642,6 +5637,7 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
 
 - (void)layoutSubviews {
     %orig;
+    [self dyyy_applyThemeBackground];
 
     if (originalTabBarHeight == kInvalidHeight) {
         NSLog(@"[DYYY] layoutSubviews: Fallback! originalTabBarHeight initialization triggered.");
