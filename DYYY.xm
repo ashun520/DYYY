@@ -5477,8 +5477,7 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     }
 }
 
-%new
-- (void)dyyy_applyThemeBackground {
+%new - (void)dyyy_applyThemeBackground {
     // 应用底栏背景颜色或图片
     NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
     UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
