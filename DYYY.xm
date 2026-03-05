@@ -5477,49 +5477,6 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     }
 }
 
-%new - (void)dyyy_applyThemeBackground {
-    // 应用底栏背景颜色或图片
-    NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
-    UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
-    UIColor *bgColor = DYYYGetThemeBackgroundColor();
-    
-    // 优先应用背景图片
-    if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
-        UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
-        if (image) {
-            [self setBackgroundColor:[UIColor colorWithPatternImage:image]];
-            // 同时设置背景视图的颜色
-            for (UIView *subview in self.subviews) {
-                if ([subview isKindOfClass:barBackgroundClass]) {
-                    [subview setBackgroundColor:[UIColor colorWithPatternImage:image]];
-                }
-            }
-            return;
-        }
-    }
-    
-    // 其次应用底栏专用颜色
-    if (tabBarBgColor) {
-        [self setBackgroundColor:tabBarBgColor];
-        for (UIView *subview in self.subviews) {
-            if ([subview isKindOfClass:barBackgroundClass]) {
-                [subview setBackgroundColor:tabBarBgColor];
-            }
-        }
-        return;
-    }
-    
-    // 最后应用全局背景颜色
-    if (bgColor) {
-        [self setBackgroundColor:bgColor];
-        for (UIView *subview in self.subviews) {
-            if ([subview isKindOfClass:barBackgroundClass]) {
-                [subview setBackgroundColor:bgColor];
-            }
-        }
-    }
-}
-
 %new
 - (void)initializeOriginalTabBarHeight {
     if (originalTabBarHeight != kInvalidHeight) {
@@ -5636,7 +5593,41 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
 
 - (void)layoutSubviews {
     %orig;
-    [self dyyy_applyThemeBackground];
+    
+    // 应用底栏背景颜色或图片
+    NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
+    UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
+    UIColor *bgColor = DYYYGetThemeBackgroundColor();
+    
+    // 优先应用背景图片
+    if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
+        UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
+        if (image) {
+            [self setBackgroundColor:[UIColor colorWithPatternImage:image]];
+            // 同时设置背景视图的颜色
+            for (UIView *subview in self.subviews) {
+                if ([subview isKindOfClass:barBackgroundClass]) {
+                    [subview setBackgroundColor:[UIColor colorWithPatternImage:image]];
+                }
+            }
+        }
+    } else if (tabBarBgColor) {
+        // 其次应用底栏专用颜色
+        [self setBackgroundColor:tabBarBgColor];
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:barBackgroundClass]) {
+                [subview setBackgroundColor:tabBarBgColor];
+            }
+        }
+    } else if (bgColor) {
+        // 最后应用全局背景颜色
+        [self setBackgroundColor:bgColor];
+        for (UIView *subview in self.subviews) {
+            if ([subview isKindOfClass:barBackgroundClass]) {
+                [subview setBackgroundColor:bgColor];
+            }
+        }
+    }
 
     if (originalTabBarHeight == kInvalidHeight) {
         NSLog(@"[DYYY] layoutSubviews: Fallback! originalTabBarHeight initialization triggered.");
