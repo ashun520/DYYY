@@ -6988,49 +6988,36 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
 %end
 
 // 消息页面主题应用
-%hook AWEIMManager
-- (void)viewDidLoad {
+%hook AWEIMMessageTabSideBarView
+- (void)didMoveToSuperview {
     %orig;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ 
-        DYYYApplyThemeToView(self.view);
-    });
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    %orig;
-    DYYYApplyThemeToView(self.view);
-}
-%end
-
-// 底栏主题应用 - 每次视图出现时重新应用
-%hook AWENormalModeTabBar
-- (void)didMoveToWindow {
-    %orig;
-    if (self.window) {
-        // 应用底栏背景颜色或图片
-        NSString *tabBarBgImage = DYYYGetBackgroundImagePath(@"DYYYTabBarBackgroundImage");
-        UIColor *tabBarBgColor = DYYYGetThemeTabBarBackgroundColor();
-        UIColor *bgColor = DYYYGetThemeBackgroundColor();
-        
-        // 优先应用背景图片
-        if (tabBarBgImage && [[NSFileManager defaultManager] fileExistsAtPath:tabBarBgImage]) {
-            UIImage *image = [UIImage imageWithContentsOfFile:tabBarBgImage];
-            if (image) {
-                [self setBackgroundColor:[UIColor colorWithPatternImage:image]];
+    if (self.superview) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ 
+            // 应用消息页面背景
+            NSString *messageBgImage = DYYYGetBackgroundImagePath(@"DYYYMessageBackgroundImage");
+            UIColor *messageBgColor = DYYYGetThemeMessageBackgroundColor();
+            UIColor *bgColor = DYYYGetThemeBackgroundColor();
+            
+            // 优先应用背景图片
+            if (messageBgImage && [[NSFileManager defaultManager] fileExistsAtPath:messageBgImage]) {
+                UIImage *image = [UIImage imageWithContentsOfFile:messageBgImage];
+                if (image) {
+                    [self.superview setBackgroundColor:[UIColor colorWithPatternImage:image]];
+                    return;
+                }
+            }
+            
+            // 其次应用消息页面专用颜色
+            if (messageBgColor) {
+                [self.superview setBackgroundColor:messageBgColor];
                 return;
             }
-        }
-        
-        // 其次应用底栏专用颜色
-        if (tabBarBgColor) {
-            [self setBackgroundColor:tabBarBgColor];
-            return;
-        }
-        
-        // 最后应用全局背景颜色
-        if (bgColor) {
-            [self setBackgroundColor:bgColor];
-        }
+            
+            // 最后应用全局背景颜色
+            if (bgColor) {
+                [self.superview setBackgroundColor:bgColor];
+            }
+        });
     }
 }
 %end
