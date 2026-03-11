@@ -24,5 +24,6 @@
 // 语音包和表情包函数声明
 NSArray *DYYYGetVoicePackageList(void);
 NSArray *DYYYGetStickerCollectionList(void);
+void DYYYPlayVoiceFromPackage(NSString *filePath);
 
 #endif

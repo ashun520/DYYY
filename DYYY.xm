@@ -225,7 +225,7 @@ static void DYYYDeleteVoiceFromPackage(NSString *fileName) {
 }
 
 // 播放语音包中的语音
-static void DYYYPlayVoiceFromPackage(NSString *filePath) {
+void DYYYPlayVoiceFromPackage(NSString *filePath) {
     if (!filePath) {
         return;
     }
