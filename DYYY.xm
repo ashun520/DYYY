@@ -25,11 +25,6 @@
 #import "DYYYFeatureManagers.h"
 
 // 函数声明
-extern "C" {
-NSArray *DYYYGetVoicePackageList(void);
-NSArray *DYYYGetStickerCollectionList(void);
-void DYYYPlayVoiceFromPackage(NSString *filePath);
-}
 
 // 彩色文字效果相关
 static char kGradientLayerKey;
