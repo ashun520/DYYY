@@ -23,12 +23,7 @@ static void showIconOptionsDialog(NSString *title, UIImage *previewImage, NSStri
 #import "DYYYBackupPickerDelegate.h"
 #import "DYYYImagePickerDelegate.h"
 
-// 语音包功能函数声明
-NSArray *DYYYGetVoicePackageList(void);
-void DYYYPlayVoiceFromPackage(NSString *filePath);
 
-// 实用功能函数声明
-NSArray *DYYYGetStickerCollectionList(void);
 
 #ifdef __cplusplus
 extern "C" {
