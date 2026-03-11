@@ -22,6 +22,7 @@
 #import "DYYYSettingViewController.h"
 #import "DYYYToast.h"
 #import "DYYYUtils.h"
+#import "DYYYFeatureManagers.h"
 
 static CGFloat gStartY = 0.0;
 static CGFloat gStartVal = 0.0;
@@ -4832,8 +4833,26 @@ static NSHashTable *processedParentViews = nil;
 
         // 确定内容类型（视频或图片）
         BOOL isImageContent = (awemeModel.awemeType == 68);
-        // 判断是否为新版实况照片
-        BOOL isNewLivePhoto = (awemeModel.video && awemeModel.animatedImageVideoInfo != nil);
+        // 判断是否为新版实况照片 - 使用多种方式检测
+        BOOL isNewLivePhoto = NO;
+        if (awemeModel.video) {
+            // 方法1: 检测animatedImageVideoInfo
+            if ([awemeModel respondsToSelector:@selector(animatedImageVideoInfo)]) {
+                isNewLivePhoto = (awemeModel.animatedImageVideoInfo != nil);
+            }
+            // 方法2: 检测视频是否有live_photo标记
+            if (!isNewLivePhoto && awemeModel.video) {
+                AWEVideoModel *vm = awemeModel.video;
+                if ([vm respondsToSelector:@selector(isLivePhoto)] && [[vm valueForKey:@"isLivePhoto"] boolValue]) {
+                    isNewLivePhoto = YES;
+                }
+            }
+            // 方法3: 检测是否有livePhotoModel
+            if (!isNewLivePhoto) {
+                id livePhotoModel = [awemeModel valueForKey:@"livePhotoModel"];
+                isNewLivePhoto = (livePhotoModel != nil);
+            }
+        }
         NSString *downloadTitle;
 
         if (isImageContent) {
@@ -4907,19 +4926,55 @@ static NSHashTable *processedParentViews = nil;
                                   }
                               }
                           } else if (isNewLivePhoto) {
-                              // 新版实况照片
-                              // 使用封面URL作为图片URL
+                              // 新版实况照片 - 使用多种方式获取URL
                               NSURL *imageURL = nil;
+                              NSURL *videoURL = nil;
+
+                              // 获取图片URL - 尝试多种方式
                               if (videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
                                   imageURL = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
                               }
+                              // 备选：从animatedImageVideoInfo获取
+                              if (!imageURL && [awemeModel respondsToSelector:@selector(animatedImageVideoInfo)]) {
+                                  id videoInfo = awemeModel.animatedImageVideoInfo;
+                                  if (videoInfo && [videoInfo respondsToSelector:NSSelectorFromString(@"coverURL")]) {
+                                      id coverURL = [videoInfo valueForKey:@"coverURL"];
+                                      if (coverURL && [coverURL respondsToSelector:@selector(originURLList)] && [[coverURL valueForKey:@"originURLList"] count] > 0) {
+                                          imageURL = [NSURL URLWithString:[[coverURL valueForKey:@"originURLList"] firstObject]];
+                                      }
+                                  }
+                              }
 
-                              // 视频URL从视频模型获取
-                              NSURL *videoURL = nil;
+                              // 获取视频URL - 尝试多种方式
                               if (videoModel && videoModel.playURL && videoModel.playURL.originURLList.count > 0) {
                                   videoURL = [NSURL URLWithString:videoModel.playURL.originURLList.firstObject];
                               } else if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
                                   videoURL = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
+                              }
+                              // 备选：从animatedImageVideoInfo获取
+                              if (!videoURL && [awemeModel respondsToSelector:@selector(animatedImageVideoInfo)]) {
+                                  id videoInfo = awemeModel.animatedImageVideoInfo;
+                                  if (videoInfo) {
+                                      // 尝试获取videoURL
+                                      id playURL = [videoInfo valueForKey:@"playURL"];
+                                      if (playURL && [playURL respondsToSelector:@selector(originURLList)] && [[playURL valueForKey:@"originURLList"] count] > 0) {
+                                          videoURL = [NSURL URLWithString:[[playURL valueForKey:@"originURLList"] firstObject]];
+                                      }
+                                  }
+                              }
+                              // 备选：从livePhotoModel获取
+                              if ((!imageURL || !videoURL) && [awemeModel respondsToSelector:NSSelectorFromString(@"livePhotoModel")]) {
+                                  id livePhotoModel = [awemeModel valueForKey:@"livePhotoModel"];
+                                  if (livePhotoModel) {
+                                      if (!imageURL && [livePhotoModel respondsToSelector:@selector(imageURL)]) {
+                                          NSString *imgURLStr = [livePhotoModel valueForKey:@"imageURL"];
+                                          if (imgURLStr) imageURL = [NSURL URLWithString:imgURLStr];
+                                      }
+                                      if (!videoURL && [livePhotoModel respondsToSelector:@selector(videoURL)]) {
+                                          NSString *vidURLStr = [livePhotoModel valueForKey:@"videoURL"];
+                                          if (vidURLStr) videoURL = [NSURL URLWithString:vidURLStr];
+                                      }
+                                  }
                               }
 
                               // 下载实况照片
@@ -4928,6 +4983,15 @@ static NSHashTable *processedParentViews = nil;
                                                         videoURL:videoURL
                                                       completion:^{
                                                       }];
+                              } else if (videoURL) {
+                                  // 只有视频URL时，尝试下载视频
+                                  [DYYYManager downloadMedia:videoURL
+                                                   mediaType:MediaTypeVideo
+                                                       audio:nil
+                                                  completion:^(BOOL success){
+                                                  }];
+                              } else {
+                                  [DYYYUtils showToast:@"无法获取实况照片URL"];
                               }
                           } else {
                               if (videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
@@ -5663,6 +5727,36 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
         }
     }
     return %orig;
+}
+
+- (void)setTitleText:(id)arg1 {
+    %orig(arg1);
+
+    NSString *shopTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomShopTitle"];
+    NSString *friendsTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomFriendsTitle"];
+    NSString *msgTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomMsgTitle"];
+    NSString *selfTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomSelfTitle"];
+
+    NSString *label = self.accessibilityLabel;
+    if (!label) return;
+
+    if ([label containsString:@"商城"] && shopTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(shopTitle);
+        });
+    } else if ([label containsString:@"朋友"] && friendsTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(friendsTitle);
+        });
+    } else if ([label containsString:@"消息"] && msgTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(msgTitle);
+        });
+    } else if ([label isEqualToString:@"我"] && selfTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(selfTitle);
+        });
+    }
 }
 
 %end
@@ -7885,6 +7979,10 @@ static void findTargetViewInView(UIView *view) {
             %init(CommentBottomTipsVCGroup, AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController = tipsVCClass);
         }
 
+        %init(VoicePackageGroup);
+        %init(StickerCollectGroup);
+        %init(CommentTimeGroup);
+
         NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
         DYYYRemoveKeyboardObserver();
         dyyyKeyboardWillShowToken = [center addObserverForName:UIKeyboardWillShowNotification
@@ -7907,3 +8005,225 @@ static void findTargetViewInView(UIView *view) {
                                                     }];
     }
 }
+
+%group VoicePackageGroup
+%hook AWEAwemeCommentVoiceView
+
+- (void)setVoiceUrl:(id)arg1 {
+    %orig(arg1);
+
+    if (DYYYGetBool(@"DYYYEnableVoicePackage")) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self setupVoicePackageButton];
+        });
+    }
+}
+
+- (void)setupVoicePackageButton {
+    UIView *containerView = self;
+    if (!containerView) return;
+
+    static char kDYYYVoiceSaveButtonKey;
+    UIButton *existingButton = objc_getAssociatedObject(self, &kDYYYVoiceSaveButtonKey);
+    if (existingButton) return;
+
+    NSString *voiceUrl = nil;
+    if ([self respondsToSelector:@selector(voiceUrl)]) {
+        voiceUrl = [self valueForKey:@"voiceUrl"];
+    }
+
+    if (!voiceUrl || voiceUrl.length == 0) return;
+
+    UIButton *saveButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    saveButton.frame = CGRectMake(0, 0, 30, 30);
+    [saveButton setImage:[UIImage systemImageNamed:@"square.and.arrow.down"] forState:UIControlStateNormal];
+    saveButton.tintColor = [UIColor systemBlueColor];
+
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(saveVoiceToPackage:)];
+    [saveButton addGestureRecognizer:tap];
+    saveButton.userInteractionEnabled = YES;
+
+    objc_setAssociatedObject(self, &kDYYYVoiceSaveButtonKey, saveButton, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+    for (UIView *subview in containerView.subviews) {
+        if ([subview isKindOfClass:[UIButton class]]) {
+            CGRect frame = subview.frame;
+            saveButton.frame = CGRectMake(frame.origin.x + frame.size.width + 5, frame.origin.y, 30, 30);
+            break;
+        }
+    }
+
+    [containerView addSubview:saveButton];
+}
+
+- (void)saveVoiceToPackage:(id)sender {
+    NSString *voiceUrl = nil;
+    if ([self respondsToSelector:@selector(voiceUrl)]) {
+        voiceUrl = [self valueForKey:@"voiceUrl"];
+    }
+
+    if (!voiceUrl || voiceUrl.length == 0) {
+        [DYYYUtils showToast:@"无法获取语音链接"];
+        return;
+    }
+
+    NSURL *url = [NSURL URLWithString:voiceUrl];
+    if (!url) {
+        [DYYYUtils showToast:@"语音链接无效"];
+        return;
+    }
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error || !data) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [DYYYUtils showToast:@"语音下载失败"];
+            });
+            return;
+        }
+
+        NSString *filename = [NSString stringWithFormat:@"voice_%@.m4a", [[NSUUID UUID] UUIDString]];
+        [[DYYYVoicePackageManager shared] saveVoicePackageWithData:data filename:filename];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [DYYYUtils showToast:@"已保存到语音包"];
+        });
+    }];
+    [task resume];
+}
+
+%end
+
+%group StickerCollectGroup
+%hook AWEAwesomeCommentStickerView
+
+- (void)setImageUrl:(id)arg1 {
+    %orig(arg1);
+
+    if (DYYYGetBool(@"DYYYEnableStickerCollect")) {
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self setupStickerCollectButton];
+        });
+    }
+}
+
+- (void)setupStickerCollectButton {
+    UIView *containerView = self;
+    if (!containerView) return;
+
+    static char kDYYYStickerCollectButtonKey;
+    UIButton *existingButton = objc_getAssociatedObject(self, &kDYYYStickerCollectButtonKey);
+    if (existingButton) return;
+
+    UIButton *collectButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    collectButton.frame = CGRectMake(0, 0, 24, 24);
+    [collectButton setImage:[UIImage systemImageNamed:@"star.fill"] forState:UIControlStateNormal];
+    collectButton.tintColor = [UIColor systemYellowColor];
+
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(collectSticker:)];
+    [collectButton addGestureRecognizer:tap];
+    collectButton.userInteractionEnabled = YES;
+
+    objc_setAssociatedObject(self, &kDYYYStickerCollectButtonKey, collectButton, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+
+    collectButton.frame = CGRectMake(containerView.bounds.size.width - 30, 2, 24, 24);
+    [containerView addSubview:collectButton];
+}
+
+- (void)collectSticker:(id)sender {
+    NSString *imageUrl = nil;
+    if ([self respondsToSelector:@selector(imageUrl)]) {
+        imageUrl = [self valueForKey:@"imageUrl"];
+    }
+
+    if (!imageUrl || imageUrl.length == 0) {
+        if ([self respondsToSelector:@selector(url)]) {
+            imageUrl = [self valueForKey:@"url"];
+        }
+    }
+
+    if (!imageUrl || imageUrl.length == 0) {
+        [DYYYUtils showToast:@"无法获取表情包链接"];
+        return;
+    }
+
+    NSURL *url = [NSURL URLWithString:imageUrl];
+    if (!url) {
+        [DYYYUtils showToast:@"表情包链接无效"];
+        return;
+    }
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error || !data) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [DYYYUtils showToast:@"表情包下载失败"];
+            });
+            return;
+        }
+
+        NSString *extension = url.pathExtension.length > 0 ? url.pathExtension : @"gif";
+        NSString *filename = [NSString stringWithFormat:@"sticker_%@.%@", [[NSUUID UUID] UUIDString], extension];
+        [[DYYYStickerManager shared] saveStickerWithData:data filename:filename];
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [DYYYUtils showToast:@"已收藏表情包"];
+        });
+    }];
+    [task resume];
+}
+
+%end
+
+%group CommentTimeGroup
+%hook AWEAwemeCommentLabel
+
+- (void)setCreateTime:(id)arg1 {
+    %orig(arg1);
+
+    if (DYYYGetBool(@"DYYYShowCommentTime")) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateTimeLabel];
+        });
+    }
+}
+
+- (void)updateTimeLabel {
+    for (UIView *subview in self.subviews) {
+        if ([subview isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)subview;
+            NSString *text = label.text;
+
+            if (text && text.length > 0 && [text rangeOfString:@":"].location != NSNotFound) {
+                NSDate *createTime = nil;
+                if ([self respondsToSelector:@selector(createTime)]) {
+                    createTime = [self valueForKey:@"createTime"];
+                }
+
+                if (createTime && [createTime isKindOfClass:[NSDate class]]) {
+                    NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:createTime];
+                    NSString *timeAgo = [self formatTimeInterval:interval];
+                    label.text = [NSString stringWithFormat:@"%@ · %@", timeAgo, text];
+                }
+            }
+        }
+    }
+}
+
+- (NSString *)formatTimeInterval:(NSTimeInterval)interval {
+    if (interval < 60) {
+        return @"刚刚";
+    } else if (interval < 3600) {
+        return [NSString stringWithFormat:@"%d分钟前", (int)(interval / 60)];
+    } else if (interval < 86400) {
+        return [NSString stringWithFormat:@"%d小时前", (int)(interval / 3600)];
+    } else if (interval < 2592000) {
+        return [NSString stringWithFormat:@"%d天前", (int)(interval / 86400)];
+    } else if (interval < 31536000) {
+        return [NSString stringWithFormat:@"%d月前", (int)(interval / 2592000)];
+    } else {
+        return [NSString stringWithFormat:@"%d年前", (int)(interval / 31536000)];
+    }
+}
+
+%end

@@ -3,7 +3,7 @@
 #import <UIKit/UIKit.h>
 #import "DYYYConstants.h"
 
-typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYYYSettingItemTypeTextField, DYYYSettingItemTypePicker };
+typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYYYSettingItemTypeTextField, DYYYSettingItemTypePicker, DYYYSettingItemTypeButton };
 
 @interface DYYYSettingItem : NSObject
 
@@ -389,12 +389,44 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
             [DYYYSettingItem itemWithTitle:@"清屏隐藏滑条" key:@"DYYYHideSlider" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"清屏隐藏底栏" key:@"DYYYHideTabBar" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"清屏隐藏倍速" key:@"DYYYHideSpeed" type:DYYYSettingItemTypeSwitch]
+        ],
+        @[
+            [DYYYSettingItem itemWithTitle:@"启用彩色文字" key:@"DYYYEnableGradientText" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"选择渐变色系" key:@"DYYYGradientTextPreset" type:DYYYSettingItemTypePicker],
+            [DYYYSettingItem itemWithTitle:@"自定义渐变起始色" key:@"DYYYGradientTextStartColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
+            [DYYYSettingItem itemWithTitle:@"自定义渐变结束色" key:@"DYYYGradientTextEndColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
+            [DYYYSettingItem itemWithTitle:@"渐变动画速度" key:@"DYYYGradientTextSpeed" type:DYYYSettingItemTypePicker],
+            [DYYYSettingItem itemWithTitle:@"启用语音包功能" key:@"DYYYEnableVoicePackage" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"管理我的语音包" key:@"DYYYVoicePackageManager" type:DYYYSettingItemTypeButton]
+        ],
+        @[
+            [DYYYSettingItem itemWithTitle:@"选择主题风格" key:@"DYYYThemeStyle" type:DYYYSettingItemTypePicker],
+            [DYYYSettingItem itemWithTitle:@"自定义主题主色" key:@"DYYYThemePrimaryColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
+            [DYYYSettingItem itemWithTitle:@"自定义主题背景色" key:@"DYYYThemeBackgroundColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
+            [DYYYSettingItem itemWithTitle:@"自定义强调色" key:@"DYYYThemeAccentColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
+            [DYYYSettingItem itemWithTitle:@"启用圆角卡片" key:@"DYYYEnableRoundedCards" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"启用暗色模式" key:@"DYYYEnableDarkMode" type:DYYYSettingItemTypeSwitch]
+        ],
+        @[
+            [DYYYSettingItem itemWithTitle:@"设置底栏商城名称" key:@"DYYYBottomShopTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"设置底栏朋友名称" key:@"DYYYBottomFriendsTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"设置底栏消息名称" key:@"DYYYBottomMsgTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
+            [DYYYSettingItem itemWithTitle:@"设置底栏我的名称" key:@"DYYYBottomSelfTitle" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"]
+        ],
+        @[
+            [DYYYSettingItem itemWithTitle:@"启用快捷评论" key:@"DYYYEnableQuickComment" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"快捷评论文案" key:@"DYYYQuickCommentText" type:DYYYSettingItemTypeTextField placeholder:@"多条用#分隔"],
+            [DYYYSettingItem itemWithTitle:@"启用表情包弹射" key:@"DYYYEnableStickerEject" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"启用评论表情包收藏" key:@"DYYYEnableStickerCollect" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"管理收藏表情包" key:@"DYYYStickerManager" type:DYYYSettingItemTypeButton],
+            [DYYYSettingItem itemWithTitle:@"启用点赞动效增强" key:@"DYYYEnhancedLikeAnimation" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"启用评论时间显示" key:@"DYYYShowCommentTime" type:DYYYSettingItemTypeSwitch]
         ]
     ];
 }
 
 - (void)setupSectionTitles {
-    self.sectionTitles = [@[ @"基本设置", @"界面设置", @"隐藏设置", @"顶栏移除", @"隐藏面板", @"面板设置", @"功能设置", @"悬浮按钮" ] mutableCopy];
+    self.sectionTitles = [@[ @"基本设置", @"界面设置", @"隐藏设置", @"顶栏移除", @"隐藏面板", @"面板设置", @"悬浮按钮", @"彩色文字", @"主题系统", @"底栏自定义", @"实用功能" ] mutableCopy];
 }
 
 - (void)setupFooterLabel {
@@ -440,22 +472,24 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
 
 - (NSArray *)optionsForKey:(NSString *)key {
     if ([key isEqualToString:@"DYYYDefaultSpeed"] || [key isEqualToString:@"DYYYLongPressSpeed"]) {
-        // 倍速选项
         return @[ @0.75, @1.0, @1.25, @1.5, @2.0, @2.5, @3.0 ];
     } else if ([key isEqualToString:@"DYYYLiveQuality"]) {
-        // 直播清晰度选项
         return @[ @"蓝光帧彩", @"蓝光", @"超清", @"高清", @"标清", @"自动" ];
+    } else if ([key isEqualToString:@"DYYYGradientTextPreset"]) {
+        return @[ @"默认渐变", @"彩虹渐变", @"日出渐变", @"星空渐变", @"糖果渐变", @"深海渐变", @"火焰渐变", @"独角兽渐变", @"自定义" ];
+    } else if ([key isEqualToString:@"DYYYGradientTextSpeed"]) {
+        return @[ @"极慢", @"慢速", @"中速", @"快速", @"极快" ];
+    } else if ([key isEqualToString:@"DYYYThemeStyle"]) {
+        return @[ @"默认风格", @"炫彩风格", @"简约风格", @"赛博风格", @"奶油风格", @"暗夜风格", @"自定义" ];
     }
     return @[];
 }
 
 - (NSString *)displayValueForKey:(NSString *)key value:(id)value {
     if ([key isEqualToString:@"DYYYDefaultSpeed"] || [key isEqualToString:@"DYYYLongPressSpeed"]) {
-        // 倍速显示格式
         float speedValue = [value floatValue];
         return [NSString stringWithFormat:@"%.2f", speedValue];
     } else if ([key isEqualToString:@"DYYYLiveQuality"]) {
-        // 直播清晰度直接显示
         return value ?: @"自动";
     }
     return [NSString stringWithFormat:@"%@", value];
@@ -466,6 +500,12 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
         return @1.0;
     } else if ([key isEqualToString:@"DYYYLiveQuality"]) {
         return @"自动";
+    } else if ([key isEqualToString:@"DYYYGradientTextPreset"]) {
+        return @"默认渐变";
+    } else if ([key isEqualToString:@"DYYYGradientTextSpeed"]) {
+        return @"中速";
+    } else if ([key isEqualToString:@"DYYYThemeStyle"]) {
+        return @"默认风格";
     }
     return nil;
 }
@@ -550,9 +590,15 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
         case 5:
             return @"面板设置";
         case 6:
-            return @"功能设置";
-        case 7:
             return @"悬浮按钮";
+        case 7:
+            return @"彩色文字";
+        case 8:
+            return @"主题系统";
+        case 9:
+            return @"底栏自定义";
+        case 10:
+            return @"实用功能";
         default:
             return @"";
     }
@@ -655,7 +701,6 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
 
         UILabel *pickerLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 44)];
-        // 获取当前值
         id currentValue = [[NSUserDefaults standardUserDefaults] objectForKey:item.key];
         if (!currentValue) {
             currentValue = [self defaultValueForKey:item.key];
@@ -666,7 +711,6 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
         pickerLabel.textAlignment = NSTextAlignmentRight;
         pickerLabel.tag = indexPath.section * 1000 + indexPath.row;
 
-        // 添加垂直居中约束
         pickerLabel.translatesAutoresizingMaskIntoConstraints = NO;
         UIView *containerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 80, 44)];
         [containerView addSubview:pickerLabel];
@@ -677,6 +721,9 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
         ]];
 
         cell.accessoryView = containerView;
+    } else if (item.type == DYYYSettingItemTypeButton) {
+        cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryView = nil;
     }
 
     return cell;
@@ -693,6 +740,12 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
     DYYYSettingItem *item = self.settingSections[indexPath.section][indexPath.row];
     if (item.type == DYYYSettingItemTypePicker) {
         [self showUniversalPickerForIndexPath:indexPath];
+    } else if (item.type == DYYYSettingItemTypeButton) {
+        if ([item.key isEqualToString:@"DYYYVoicePackageManager"]) {
+            [self showVoicePackageManager];
+        } else if ([item.key isEqualToString:@"DYYYStickerManager"]) {
+            [self showStickerManager];
+        }
     }
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
 }
@@ -767,6 +820,113 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
                      }];
 
     [self.tableView reloadSections:[NSIndexSet indexSetWithIndex:sender.tag] withRowAnimation:UITableViewRowAnimationFade];
+}
+
+#pragma mark - Voice Package & Sticker Manager
+
+- (void)showVoicePackageManager {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"语音包管理"
+                                                                   message:@"管理您保存的语音包"
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+
+    NSString *voicePackagePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"VoicePackage"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    if (![fileManager fileExistsAtPath:voicePackagePath]) {
+        [fileManager createDirectoryAtPath:voicePackagePath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+
+    NSArray *voiceFiles = [fileManager contentsOfDirectoryAtPath:voicePackagePath error:nil];
+
+    if (voiceFiles.count == 0) {
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:okAction];
+    } else {
+        UIAlertAction *clearAllAction = [UIAlertAction actionWithTitle:@"清空所有语音包" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [self clearAllVoicePackages];
+        }];
+        [alert addAction:clearAllAction];
+
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+        [alert addAction:cancelAction];
+    }
+
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        alert.popoverPresentationController.sourceView = self.view;
+        alert.popoverPresentationController.sourceRect = CGRectMake(self.view.bounds.size.width / 2, self.view.bounds.size.height / 2, 0, 0);
+    }
+
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)clearAllVoicePackages {
+    NSString *voicePackagePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"VoicePackage"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    NSError *error = nil;
+    NSArray *voiceFiles = [fileManager contentsOfDirectoryAtPath:voicePackagePath error:&error];
+
+    for (NSString *file in voiceFiles) {
+        NSString *filePath = [voicePackagePath stringByAppendingPathComponent:file];
+        [fileManager removeItemAtPath:filePath error:nil];
+    }
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"完成" message:@"已清空所有语音包" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+    [alert addAction:okAction];
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)showStickerManager {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"表情包管理"
+                                                                   message:@"管理您收藏的表情包"
+                                                            preferredStyle:UIAlertControllerStyleActionSheet];
+
+    NSString *stickerPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"StickerCollect"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    if (![fileManager fileExistsAtPath:stickerPath]) {
+        [fileManager createDirectoryAtPath:stickerPath withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+
+    NSArray *stickerFiles = [fileManager contentsOfDirectoryAtPath:stickerPath error:nil];
+
+    if (stickerFiles.count == 0) {
+        UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+        [alert addAction:okAction];
+    } else {
+        UIAlertAction *clearAllAction = [UIAlertAction actionWithTitle:@"清空所有表情包" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull action) {
+            [self clearAllStickers];
+        }];
+        [alert addAction:clearAllAction];
+
+        UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+        [alert addAction:cancelAction];
+    }
+
+    if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
+        alert.popoverPresentationController.sourceView = self.view;
+        alert.popoverPresentationController.sourceRect = CGRectMake(self.view.bounds.size.width / 2, self.view.bounds.size.height / 2, 0, 0);
+    }
+
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
+- (void)clearAllStickers {
+    NSString *stickerPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject stringByAppendingPathComponent:@"StickerCollect"];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
+    NSArray *stickerFiles = [fileManager contentsOfDirectoryAtPath:stickerPath error:nil];
+
+    for (NSString *file in stickerFiles) {
+        NSString *filePath = [stickerPath stringByAppendingPathComponent:file];
+        [fileManager removeItemAtPath:filePath error:nil];
+    }
+
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"完成" message:@"已清空所有表情包" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil];
+    [alert addAction:okAction];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 @end
