@@ -2752,8 +2752,13 @@ static NSArray *DYYYIMMenuItemsByAddingDownloadAction(NSArray *menuItems, id cel
 }
 %end
 %end
-%group CommentBottomTipsVCGroup
+
+%group VoicePackageGroup
+%group StickerCollectGroup  
+%group CommentTimeGroup
+
 %hook AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController
+%group CommentBottomTipsVCGroup
 - (void)viewWillAppear:(BOOL)animated {
     %orig(animated);
     if (DYYYGetBool(@"DYYYHideCommentTips")) {
@@ -8007,7 +8012,6 @@ static void findTargetViewInView(UIView *view) {
 }
 
 %hook AWEAwemeCommentVoiceView
-%group VoicePackageGroup
 
 - (void)setVoiceUrl:(id)arg1 {
     %orig(arg1);
@@ -8095,7 +8099,6 @@ static void findTargetViewInView(UIView *view) {
 %end
 
 %hook AWEAwesomeCommentStickerView
-%group StickerCollectGroup
 
 - (void)setImageUrl:(id)arg1 {
     %orig(arg1);
@@ -8176,7 +8179,6 @@ static void findTargetViewInView(UIView *view) {
 %end
 
 %hook AWEAwemeCommentLabel
-%group CommentTimeGroup
 
 - (void)setCreateTime:(id)arg1 {
     %orig(arg1);
