@@ -25,16 +25,15 @@ static void showIconOptionsDialog(NSString *title, UIImage *previewImage, NSStri
 
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-void *kViewModelKey = &kViewModelKey;
-
 // 函数声明
 NSArray *DYYYGetVoicePackageList(void);
 NSArray *DYYYGetStickerCollectionList(void);
 void DYYYPlayVoiceFromPackage(NSString *filePath);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+void *kViewModelKey = &kViewModelKey;
 #ifdef __cplusplus
 }
 #endif
