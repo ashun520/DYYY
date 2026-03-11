@@ -1,4 +1,4 @@
-//
+﻿//
 //  DYYY
 //
 //  Copyright (c) 2024 huami. All rights reserved.
@@ -23,6 +23,524 @@
 #import "DYYYToast.h"
 #import "DYYYUtils.h"
 #import "DYYYFeatureManagers.h"
+
+// 彩色文字效果相关
+static char kGradientLayerKey;
+static char kGradientAnimationKey;
+
+// 获取渐变色系
+static NSArray *DYYYGetGradientColors(NSString *preset) {
+    if ([preset isEqualToString:@"彩虹渐变"]) {
+        return @[[UIColor redColor], [UIColor orangeColor], [UIColor yellowColor], [UIColor greenColor], [UIColor blueColor], [UIColor purpleColor]];
+    } else if ([preset isEqualToString:@"日出渐变"]) {
+        return @[[UIColor orangeColor], [UIColor yellowColor], [UIColor whiteColor]];
+    } else if ([preset isEqualToString:@"星空渐变"]) {
+        return @[[UIColor darkGrayColor], [UIColor blueColor], [UIColor purpleColor]];
+    } else if ([preset isEqualToString:@"糖果渐变"]) {
+        return @[[UIColor pinkColor], [UIColor yellowColor], [UIColor cyanColor]];
+    } else if ([preset isEqualToString:@"深海渐变"]) {
+        return @[[UIColor blueColor], [UIColor cyanColor], [UIColor greenColor]];
+    } else if ([preset isEqualToString:@"火焰渐变"]) {
+        return @[[UIColor redColor], [UIColor orangeColor], [UIColor yellowColor]];
+    } else if ([preset isEqualToString:@"独角兽渐变"]) {
+        return @[[UIColor pinkColor], [UIColor purpleColor], [UIColor blueColor]];
+    } else if ([preset isEqualToString:@"自定义"]) {
+        NSString *startColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYGradientTextStartColor"];
+        NSString *endColorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYGradientTextEndColor"];
+        UIColor *startColor = [DYYYUtils colorWithHexString:startColorHex] ?: [UIColor blueColor];
+        UIColor *endColor = [DYYYUtils colorWithHexString:endColorHex] ?: [UIColor purpleColor];
+        return @[startColor, endColor];
+    } else {
+        // 默认渐变
+        return @[[UIColor blueColor], [UIColor purpleColor]];
+    }
+}
+
+// 应用渐变文字效果
+static void DYYYApplyGradientTextToLabel(UILabel *label) {
+    if (!DYYYGetBool(@"DYYYEnableGradientText")) {
+        return;
+    }
+    
+    NSString *preset = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYGradientTextPreset"] ?: @"默认渐变";
+    NSArray *gradientColors = DYYYGetGradientColors(preset);
+    
+    // 移除旧的渐变层
+    CAGradientLayer *oldLayer = objc_getAssociatedObject(label, &kGradientLayerKey);
+    if (oldLayer) {
+        [oldLayer removeFromSuperlayer];
+    }
+    
+    // 创建新的渐变层
+    CAGradientLayer *gradientLayer = [CAGradientLayer layer];
+    gradientLayer.colors = [gradientColors valueForKeyPath:@"CGColor"];
+    gradientLayer.startPoint = CGPointMake(0, 0.5);
+    gradientLayer.endPoint = CGPointMake(1, 0.5);
+    gradientLayer.frame = label.bounds;
+    
+    // 创建遮罩
+    UILabel *maskLabel = [[UILabel alloc] initWithFrame:label.bounds];
+    maskLabel.text = label.text;
+    maskLabel.font = label.font;
+    maskLabel.textAlignment = label.textAlignment;
+    maskLabel.textColor = [UIColor whiteColor];
+    maskLabel.backgroundColor = [UIColor clearColor];
+    
+    CALayer *maskLayer = maskLabel.layer;
+    gradientLayer.mask = maskLayer;
+    
+    [label.superview insertSublayer:gradientLayer above:label];
+    label.textColor = [UIColor clearColor];
+    
+    objc_setAssociatedObject(label, &kGradientLayerKey, gradientLayer, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    
+    // 添加动画效果
+    NSString *speed = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYGradientTextSpeed"] ?: @"中速";
+    CGFloat duration = 3.0;
+    if ([speed isEqualToString:@"极慢"]) duration = 8.0;
+    else if ([speed isEqualToString:@"慢速"]) duration = 5.0;
+    else if ([speed isEqualToString:@"快速"]) duration = 2.0;
+    else if ([speed isEqualToString:@"极快"]) duration = 1.0;
+    
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"locations"];
+    animation.fromValue = @[@0.0, @0.0, @0.0];
+    animation.toValue = @[@1.0, @1.0, @1.0];
+    animation.duration = duration;
+    animation.repeatCount = INFINITY;
+    animation.autoreverses = YES;
+    
+    [gradientLayer addAnimation:animation forKey:@"gradientAnimation"];
+    objc_setAssociatedObject(label, &kGradientAnimationKey, animation, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+// 清除渐变文字效果
+static void DYYYRemoveGradientTextFromLabel(UILabel *label) {
+    CAGradientLayer *gradientLayer = objc_getAssociatedObject(label, &kGradientLayerKey);
+    if (gradientLayer) {
+        [gradientLayer removeFromSuperlayer];
+        objc_setAssociatedObject(label, &kGradientLayerKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    
+    CABasicAnimation *animation = objc_getAssociatedObject(label, &kGradientAnimationKey);
+    if (animation) {
+        objc_setAssociatedObject(label, &kGradientAnimationKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    
+    label.textColor = [UIColor whiteColor]; // 恢复默认颜色
+}
+
+// 语音包功能相关
+static NSString *DYYYVoicePackageDirectory(void) {
+    static NSString *voiceDirectory = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{  
+        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        voiceDirectory = [documentsPath stringByAppendingPathComponent:@"DYYY/VoicePackage"];
+        [[NSFileManager defaultManager] createDirectoryAtPath:voiceDirectory withIntermediateDirectories:YES attributes:nil error:nil];
+    });
+    
+    return voiceDirectory;
+}
+
+// 保存语音到语音包
+static void DYYYSaveVoiceToPackage(NSURL *audioURL, NSString *fileName) {
+    if (!audioURL || !fileName) {
+        return;
+    }
+    
+    NSString *voiceDir = DYYYVoicePackageDirectory();
+    NSString *savePath = [voiceDir stringByAppendingPathComponent:fileName];
+    
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:savePath]) {
+        [fileManager removeItemAtPath:savePath error:&error];
+        if (error) {
+            NSLog(@"Failed to remove existing file: %@", error.localizedDescription);
+            return;
+        }
+    }
+    
+    BOOL success = [fileManager copyItemAtURL:audioURL toURL:[NSURL fileURLWithPath:savePath] error:&error];
+    if (success) {
+        [DYYYToast showSuccessToastWithMessage:@"语音已保存到语音包"];
+    } else {
+        [DYYYToast showErrorToastWithMessage:[NSString stringWithFormat:@"保存失败: %@", error.localizedDescription]];
+    }
+}
+
+// 获取语音包中的所有语音
+static NSArray *DYYYGetVoicePackageList(void) {
+    NSString *voiceDir = DYYYVoicePackageDirectory();
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSArray *files = [fileManager contentsOfDirectoryAtPath:voiceDir error:&error];
+    if (error) {
+        return @[];
+    }
+    
+    NSMutableArray *voiceList = [NSMutableArray array];
+    for (NSString *fileName in files) {
+        if ([fileName hasSuffix:@".mp3"] || [fileName hasSuffix:@".m4a"] || [fileName hasSuffix:@".wav"]) {
+            NSString *filePath = [voiceDir stringByAppendingPathComponent:fileName];
+            NSDictionary *fileAttrs = [fileManager attributesOfItemAtPath:filePath error:&error];
+            if (fileAttrs) {
+                NSDictionary *voiceInfo = @{
+                    @"fileName": fileName,
+                    @"filePath": filePath,
+                    @"fileSize": @([fileAttrs fileSize]),
+                    @"creationDate": fileAttrs[NSFileCreationDate]
+                };
+                [voiceList addObject:voiceInfo];
+            }
+        }
+    }
+    
+    return voiceList;
+}
+
+// 删除语音包中的语音
+static void DYYYDeleteVoiceFromPackage(NSString *fileName) {
+    if (!fileName) {
+        return;
+    }
+    
+    NSString *voiceDir = DYYYVoicePackageDirectory();
+    NSString *filePath = [voiceDir stringByAppendingPathComponent:fileName];
+    
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:filePath]) {
+        BOOL success = [fileManager removeItemAtPath:filePath error:&error];
+        if (success) {
+            [DYYYToast showSuccessToastWithMessage:@"语音已删除"];
+        } else {
+            [DYYYToast showErrorToastWithMessage:[NSString stringWithFormat:@"删除失败: %@", error.localizedDescription]];
+        }
+    }
+}
+
+// 播放语音包中的语音
+static void DYYYPlayVoiceFromPackage(NSString *filePath) {
+    if (!filePath) {
+        return;
+    }
+    
+    NSURL *audioURL = [NSURL fileURLWithPath:filePath];
+    if (!audioURL) {
+        return;
+    }
+    
+    // 这里需要集成音频播放功能，暂时使用系统播放
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"DYYYPlayVoiceNotification" object:audioURL];
+    [DYYYToast showSuccessToastWithMessage:@"开始播放语音"];
+}
+
+// 主题系统相关
+static char kThemeAppliedKey;
+
+// 获取主题主色
+static UIColor *DYYYGetThemePrimaryColor(void) {
+    NSString *themeStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeStyle"] ?: @"默认风格";
+    
+    if ([themeStyle isEqualToString:@"自定义"]) {
+        NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemePrimaryColor"];
+        return [DYYYUtils colorWithHexString:colorHex] ?: [UIColor blueColor];
+    } else if ([themeStyle isEqualToString:@"炫彩风格"]) {
+        return [UIColor colorWithRed:0.8 green:0.2 blue:0.8 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"简约风格"]) {
+        return [UIColor colorWithRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"赛博风格"]) {
+        return [UIColor colorWithRed:0.0 green:0.8 blue:0.8 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"奶油风格"]) {
+        return [UIColor colorWithRed:1.0 green:0.9 blue:0.8 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"暗夜风格"]) {
+        return [UIColor colorWithRed:0.2 green:0.2 blue:0.8 alpha:1.0];
+    } else {
+        // 默认风格
+        return [UIColor blueColor];
+    }
+}
+
+// 获取主题背景色
+static UIColor *DYYYGetThemeBackgroundColor(void) {
+    NSString *themeStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeStyle"] ?: @"默认风格";
+    
+    if ([themeStyle isEqualToString:@"自定义"]) {
+        NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeBackgroundColor"];
+        return [DYYYUtils colorWithHexString:colorHex] ?: [UIColor blackColor];
+    } else if ([themeStyle isEqualToString:@"炫彩风格"]) {
+        return [UIColor colorWithRed:0.1 green:0.1 blue:0.2 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"简约风格"]) {
+        return [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"赛博风格"]) {
+        return [UIColor colorWithRed:0.05 green:0.05 blue:0.1 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"奶油风格"]) {
+        return [UIColor colorWithRed:0.15 green:0.1 green:0.05 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"暗夜风格"]) {
+        return [UIColor colorWithRed:0.05 green:0.05 blue:0.1 alpha:1.0];
+    } else {
+        // 默认风格
+        return [UIColor blackColor];
+    }
+}
+
+// 获取主题强调色
+static UIColor *DYYYGetThemeAccentColor(void) {
+    NSString *themeStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeStyle"] ?: @"默认风格";
+    
+    if ([themeStyle isEqualToString:@"自定义"]) {
+        NSString *colorHex = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeAccentColor"];
+        return [DYYYUtils colorWithHexString:colorHex] ?: [UIColor whiteColor];
+    } else if ([themeStyle isEqualToString:@"炫彩风格"]) {
+        return [UIColor colorWithRed:1.0 green:1.0 blue:0.0 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"简约风格"]) {
+        return [UIColor colorWithRed:0.8 green:0.8 blue:0.8 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"赛博风格"]) {
+        return [UIColor colorWithRed:1.0 green:0.0 blue:1.0 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"奶油风格"]) {
+        return [UIColor colorWithRed:1.0 green:0.8 blue:0.6 alpha:1.0];
+    } else if ([themeStyle isEqualToString:@"暗夜风格"]) {
+        return [UIColor colorWithRed:0.0 green:1.0 blue:1.0 alpha:1.0];
+    } else {
+        // 默认风格
+        return [UIColor whiteColor];
+    }
+}
+
+// 应用主题到视图
+static void DYYYApplyThemeToView(UIView *view) {
+    if (!view) {
+        return;
+    }
+    
+    // 应用圆角卡片
+    if (DYYYGetBool(@"DYYYEnableRoundedCards")) {
+        view.layer.cornerRadius = 12.0;
+        view.layer.masksToBounds = YES;
+    }
+    
+    // 应用暗色模式
+    if (DYYYGetBool(@"DYYYEnableDarkMode")) {
+        view.backgroundColor = [DYYYGetThemeBackgroundColor() colorWithAlphaComponent:0.8];
+    }
+    
+    // 递归应用到子视图
+    for (UIView *subview in view.subviews) {
+        DYYYApplyThemeToView(subview);
+    }
+}
+
+// 应用主题到标签
+static void DYYYApplyThemeToLabel(UILabel *label) {
+    if (!label) {
+        return;
+    }
+    
+    UIColor *accentColor = DYYYGetThemeAccentColor();
+    label.textColor = accentColor;
+}
+
+// 应用主题到按钮
+static void DYYYApplyThemeToButton(UIButton *button) {
+    if (!button) {
+        return;
+    }
+    
+    UIColor *primaryColor = DYYYGetThemePrimaryColor();
+    UIColor *accentColor = DYYYGetThemeAccentColor();
+    
+    [button setTitleColor:accentColor forState:UIControlStateNormal];
+    [button setTitleColor:primaryColor forState:UIControlStateHighlighted];
+}
+
+// 实用功能相关
+
+// 快捷评论功能
+static NSArray *DYYYGetQuickComments(void) {
+    NSString *quickCommentText = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYQuickCommentText"] ?: @"不错#很好#喜欢#支持#太棒了";
+    NSArray *comments = [quickCommentText componentsSeparatedByString:@"#"];
+    NSMutableArray *validComments = [NSMutableArray array];
+    for (NSString *comment in comments) {
+        if (comment.length > 0) {
+            [validComments addObject:comment];
+        }
+    }
+    return validComments;
+}
+
+// 显示快捷评论菜单
+static void DYYYShowQuickCommentMenu(UIView *targetView) {
+    if (!DYYYGetBool(@"DYYYEnableQuickComment")) {
+        return;
+    }
+    
+    NSArray *quickComments = DYYYGetQuickComments();
+    if (quickComments.count == 0) {
+        return;
+    }
+    
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"快捷评论" message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    for (NSString *comment in quickComments) {
+        UIAlertAction *action = [UIAlertAction actionWithTitle:comment style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            // 这里需要实现评论发送逻辑
+            [DYYYToast showSuccessToastWithMessage:[NSString stringWithFormat:@"已发送评论: %@", comment]];
+        }];
+        [alertController addAction:action];
+    }
+    
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alertController addAction:cancelAction];
+    
+    UIViewController *topVC = [DYYYUtils topView];
+    if (topVC) {
+        [topVC presentViewController:alertController animated:YES completion:nil];
+    }
+}
+
+// 表情包收藏功能
+static NSString *DYYYStickerCollectionDirectory(void) {
+    static NSString *stickerDirectory = nil;
+    static dispatch_once_t onceToken;
+    
+    dispatch_once(&onceToken, ^{  
+        NSString *documentsPath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+        stickerDirectory = [documentsPath stringByAppendingPathComponent:@"DYYY/StickerCollection"];
+        [[NSFileManager defaultManager] createDirectoryAtPath:stickerDirectory withIntermediateDirectories:YES attributes:nil error:nil];
+    });
+    
+    return stickerDirectory;
+}
+
+// 保存表情包到收藏
+static void DYYYSaveStickerToCollection(NSURL *stickerURL, NSString *stickerName) {
+    if (!stickerURL || !stickerName) {
+        return;
+    }
+    
+    NSString *stickerDir = DYYYStickerCollectionDirectory();
+    NSString *savePath = [stickerDir stringByAppendingPathComponent:stickerName];
+    
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    if ([fileManager fileExistsAtPath:savePath]) {
+        [fileManager removeItemAtPath:savePath error:&error];
+        if (error) {
+            NSLog(@"Failed to remove existing sticker: %@", error.localizedDescription);
+            return;
+        }
+    }
+    
+    BOOL success = [fileManager copyItemAtURL:stickerURL toURL:[NSURL fileURLWithPath:savePath] error:&error];
+    if (success) {
+        [DYYYToast showSuccessToastWithMessage:@"表情包已收藏"];
+    } else {
+        [DYYYToast showErrorToastWithMessage:[NSString stringWithFormat:@"收藏失败: %@", error.localizedDescription]];
+    }
+}
+
+// 获取收藏的表情包列表
+static NSArray *DYYYGetStickerCollectionList(void) {
+    NSString *stickerDir = DYYYStickerCollectionDirectory();
+    NSError *error = nil;
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
+    NSArray *files = [fileManager contentsOfDirectoryAtPath:stickerDir error:&error];
+    if (error) {
+        return @[];
+    }
+    
+    NSMutableArray *stickerList = [NSMutableArray array];
+    for (NSString *fileName in files) {
+        if ([fileName hasSuffix:@".png"] || [fileName hasSuffix:@".gif"] || [fileName hasSuffix:@".jpg"] || [fileName hasSuffix:@".jpeg"]) {
+            NSString *filePath = [stickerDir stringByAppendingPathComponent:fileName];
+            NSDictionary *fileAttrs = [fileManager attributesOfItemAtPath:filePath error:&error];
+            if (fileAttrs) {
+                NSDictionary *stickerInfo = @{
+                    @"fileName": fileName,
+                    @"filePath": filePath,
+                    @"fileSize": @([fileAttrs fileSize]),
+                    @"creationDate": fileAttrs[NSFileCreationDate]
+                };
+                [stickerList addObject:stickerInfo];
+            }
+        }
+    }
+    
+    return stickerList;
+}
+
+// 增强点赞动画
+static void DYYYEnhanceLikeAnimation(UIView *likeView) {
+    if (!DYYYGetBool(@"DYYYEnhancedLikeAnimation")) {
+        return;
+    }
+    
+    // 添加缩放动画
+    CABasicAnimation *scaleAnimation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    scaleAnimation.fromValue = @0.5;
+    scaleAnimation.toValue = @1.2;
+    scaleAnimation.duration = 0.3;
+    scaleAnimation.autoreverses = YES;
+    scaleAnimation.repeatCount = 1;
+    
+    // 添加旋转动画
+    CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@"transform.rotation.z"];
+    rotationAnimation.fromValue = @0;
+    rotationAnimation.toValue = @(M_PI * 2);
+    rotationAnimation.duration = 0.6;
+    rotationAnimation.repeatCount = 1;
+    
+    // 添加颜色变化动画
+    CABasicAnimation *colorAnimation = [CABasicAnimation animationWithKeyPath:@"backgroundColor"];
+    colorAnimation.fromValue = (__bridge id)[UIColor redColor].CGColor;
+    colorAnimation.toValue = (__bridge id)[UIColor pinkColor].CGColor;
+    colorAnimation.duration = 0.6;
+    colorAnimation.autoreverses = YES;
+    colorAnimation.repeatCount = 1;
+    
+    // 应用动画
+    [likeView.layer addAnimation:scaleAnimation forKey:@"scaleAnimation"];
+    [likeView.layer addAnimation:rotationAnimation forKey:@"rotationAnimation"];
+    [likeView.layer addAnimation:colorAnimation forKey:@"colorAnimation"];
+}
+
+// 显示评论时间
+static void DYYYShowCommentTime(UILabel *timeLabel, NSDate *commentDate) {
+    if (!DYYYGetBool(@"DYYYShowCommentTime")) {
+        return;
+    }
+    
+    if (!timeLabel || !commentDate) {
+        return;
+    }
+    
+    NSTimeInterval interval = [[NSDate date] timeIntervalSinceDate:commentDate];
+    NSString *timeString;
+    
+    if (interval < 60) {
+        timeString = @"刚刚";
+    } else if (interval < 3600) {
+        timeString = [NSString stringWithFormat:@"%ld分钟前", (long)(interval / 60)];
+    } else if (interval < 86400) {
+        timeString = [NSString stringWithFormat:@"%ld小时前", (long)(interval / 3600)];
+    } else if (interval < 604800) {
+        timeString = [NSString stringWithFormat:@"%ld天前", (long)(interval / 86400)];
+    } else {
+        NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+        [formatter setDateFormat:@"yyyy-MM-dd"];
+        timeString = [formatter stringFromDate:commentDate];
+    }
+    
+    timeLabel.text = timeString;
+    timeLabel.hidden = NO;
+}
 
 static CGFloat gStartY = 0.0;
 static CGFloat gStartVal = 0.0;
@@ -1390,6 +1908,11 @@ static NSString *const kDYYYLongPressCopyEnabledKey = @"DYYYLongPressCopyTextEna
 
         objc_setAssociatedObject(self, &kLongPressGestureKey, highPriorityLongPress, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
+    
+    // 应用主题到标签
+    DYYYApplyThemeToLabel(self);
+    // 应用彩色文字效果
+    DYYYApplyGradientTextToLabel(self);
 }
 
 %new
@@ -1443,6 +1966,9 @@ static NSString *const kDYYYLongPressCopyEnabledKey = @"DYYYLongPressCopyTextEna
         CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, verticalOffset);
         grandParentView.transform = translationTransform;
     }
+    
+    // 应用彩色文字效果
+    DYYYApplyGradientTextToLabel(self);
 }
 
 %end
@@ -1476,6 +2002,12 @@ static NSString *const kDYYYLongPressCopyEnabledKey = @"DYYYLongPressCopyTextEna
         CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(translationX, verticalOffset);
         grandParentView.transform = translationTransform;
     }
+    
+    // 应用彩色文字效果
+    DYYYApplyGradientTextToLabel(self);
+    
+    // 应用主题到标签
+    DYYYApplyThemeToLabel(self);
 }
 
 %end
@@ -1494,6 +2026,14 @@ static NSString *const kDYYYLongPressCopyEnabledKey = @"DYYYLongPressCopyTextEna
                 nameString = func(self, @selector(imageNameString));
             }
         }
+    }
+
+    // 应用主题到按钮
+    DYYYApplyThemeToButton(self);
+
+    // 应用增强点赞动画
+    if ([nameString containsString:@"like"]) {
+        DYYYEnhanceLikeAnimation(self);
     }
 
     NSString *customFileName = DYYYCustomIconFileNameForButtonName(nameString);
@@ -2101,6 +2641,54 @@ static BOOL isGestureActive = NO;
     }
 
     %orig(text);
+    
+    // 应用主题到标签
+    DYYYApplyThemeToLabel(self);
+    // 应用彩色文字效果
+    DYYYApplyGradientTextToLabel(self);
+}
+
+- (void)layoutSubviews {
+    %orig;
+    
+    // 应用主题到标签
+    DYYYApplyThemeToLabel(self);
+    // 应用彩色文字效果
+    DYYYApplyGradientTextToLabel(self);
+}
+%end
+
+%hook UIButton
+
+- (void)setTitle:(NSString *)title forState:(UIControlState)state {
+    %orig(title, state);
+    
+    // 应用主题到按钮
+    DYYYApplyThemeToButton(self);
+}
+
+- (void)layoutSubviews {
+    %orig;
+    
+    // 应用主题到按钮
+    DYYYApplyThemeToButton(self);
+}
+%end
+
+%hook UIView
+
+- (void)layoutSubviews {
+    %orig;
+    
+    // 应用主题到视图
+    DYYYApplyThemeToView(self);
+}
+
+- (void)didMoveToSuperview {
+    %orig;
+    
+    // 应用主题到视图
+    DYYYApplyThemeToView(self);
 }
 %end
 
