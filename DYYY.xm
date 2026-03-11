@@ -8006,8 +8006,8 @@ static void findTargetViewInView(UIView *view) {
     }
 }
 
-%group VoicePackageGroup
 %hook AWEAwemeCommentVoiceView
+%group VoicePackageGroup
 
 - (void)setVoiceUrl:(id)arg1 {
     %orig(arg1);
@@ -8094,8 +8094,8 @@ static void findTargetViewInView(UIView *view) {
 
 %end
 
-%group StickerCollectGroup
 %hook AWEAwesomeCommentStickerView
+%group StickerCollectGroup
 
 - (void)setImageUrl:(id)arg1 {
     %orig(arg1);
@@ -8175,8 +8175,8 @@ static void findTargetViewInView(UIView *view) {
 
 %end
 
-%group CommentTimeGroup
 %hook AWEAwemeCommentLabel
+%group CommentTimeGroup
 
 - (void)setCreateTime:(id)arg1 {
     %orig(arg1);
