@@ -2753,8 +2753,8 @@ static NSArray *DYYYIMMenuItemsByAddingDownloadAction(NSArray *menuItems, id cel
 %end
 %end
 
-%hook AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController
 %group CommentBottomTipsVCGroup
+%hook AWECommentPanelListSwiftImpl_CommentBottomTipsContainerViewController
 - (void)viewWillAppear:(BOOL)animated {
     %orig(animated);
     if (DYYYGetBool(@"DYYYHideCommentTips")) {
