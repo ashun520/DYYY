@@ -1,4 +1,4 @@
-﻿// 最小化版本的DYYY.xm
+// 最小化版本的DYYY.xm
 
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
