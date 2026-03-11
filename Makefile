@@ -30,6 +30,14 @@ endif
 export DEBUG = 0
 INSTALL_TARGET_PROCESSES = Aweme
 
+# 自动检测THEOS路径
+ifeq ($(THEOS),)
+    THEOS := $(CURDIR)/theos
+endif
+
+# 设置THEOS_MAKE_PATH
+THEOS_MAKE_PATH := $(THEOS)/makefiles
+
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = DYYY
