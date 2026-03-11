@@ -64,6 +64,8 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) { DYYYSettingItemTypeSwitch, DYY
     [self setupSectionTitles];
     [self setupFooterLabel];
     [self addTitleGradientAnimation];
+    
+    [self.tableView reloadData];
 }
 
 - (void)setupDefaultValues {
