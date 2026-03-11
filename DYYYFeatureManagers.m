@@ -236,7 +236,7 @@
         return @[[UIColor colorWithRed:255/255.0 green:107/255.0 blue:107/255.0 alpha:1.0],
                  [UIColor colorWithRed:255/255.0 green:142/255.0 blue:113/255.0 alpha:1.0],
                  [UIColor colorWithRed:111/255.0 green:207/255.0 blue:255/255.0 alpha:1.0],
-                 [UIColor green:207/255.0 blue:255/255.0 alpha:1.0]];
+                 [UIColor colorWithRed:0/255.0 green:207/255.0 blue:255/255.0 alpha:1.0]];
     } else if ([preset isEqualToString:@"深海渐变"]) {
         return @[[UIColor colorWithRed:0/255.0 green:68/255.0 blue:100/255.0 alpha:1.0],
                  [UIColor colorWithRed:0/255.0 green:137/255.0 blue:149/255.0 alpha:1.0],
