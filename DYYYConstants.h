@@ -1,6 +1,8 @@
 #ifndef DYYYConstants_h
 #define DYYYConstants_h
 
+#import <Foundation/Foundation.h>
+
 #define DYYY_NAME @"DYYY"
 #define DYYY_SETTINGS_NAME @"DYYY设置"
 
