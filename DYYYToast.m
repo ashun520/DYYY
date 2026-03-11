@@ -421,6 +421,132 @@
     [toast showSuccessToastWithMessage:message completion:nil];
 }
 
++ (void)showErrorToastWithMessage:(NSString *)message {
+    DYYYToast *toast = [[DYYYToast alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    [toast showErrorToastWithMessage:message completion:nil];
+}
+
+- (void)showErrorToastWithMessage:(NSString *)message completion:(void (^)(void))completion {
+    UIWindow *window = [DYYYUtils getActiveWindow];
+    if (!window) {
+        window = UIApplication.sharedApplication.windows.firstObject;
+    }
+    if (!window) {
+        return;
+    }
+    for (UIGestureRecognizer *gesture in self.containerView.gestureRecognizers) {
+        [self.containerView removeGestureRecognizer:gesture];
+    }
+
+    [window addSubview:self];
+
+    self.percentLabel.text = message ?: @"错误";
+
+    self.progressLayer.opacity = 0;
+
+    [UIView animateWithDuration:0.2
+        animations:^{
+          self.alpha = 1.0;
+        }
+        completion:^(BOOL finished) {
+          [self directlyShowErrorAnimation:completion];
+        }];
+}
+
+- (void)directlyShowErrorAnimation:(void (^)(void))completion {
+    BOOL isDarkMode = [DYYYUtils isDarkMode];
+
+    UIColor *errorColor = isDarkMode ? [UIColor colorWithRed:231 / 255.0 green:76 / 255.0 blue:60 / 255.0 alpha:1.0] : [UIColor colorWithRed:203 / 255.0 green:67 / 255.0 blue:53 / 255.0 alpha:1.0];
+
+    CAShapeLayer *circleLayer = [CAShapeLayer layer];
+    CGFloat circleSize = 30;
+    UIBezierPath *circlePath = [UIBezierPath bezierPathWithOvalInRect:CGRectMake(0, 0, circleSize, circleSize)];
+
+    circleLayer.path = circlePath.CGPath;
+    circleLayer.fillColor = errorColor.CGColor;
+    circleLayer.opacity = 0;
+
+    [self.progressView.layer addSublayer:circleLayer];
+
+    CAShapeLayer *crossLayer = [CAShapeLayer layer];
+
+    UIBezierPath *crossPath = [UIBezierPath bezierPath];
+    [crossPath moveToPoint:CGPointMake(circleSize * 0.7, circleSize * 0.3)];
+    [crossPath addLineToPoint:CGPointMake(circleSize * 0.3, circleSize * 0.7)];
+    [crossPath moveToPoint:CGPointMake(circleSize * 0.3, circleSize * 0.3)];
+    [crossPath addLineToPoint:CGPointMake(circleSize * 0.7, circleSize * 0.7)];
+
+    crossLayer.path = crossPath.CGPath;
+    crossLayer.fillColor = nil;
+    crossLayer.strokeColor = [UIColor whiteColor].CGColor;
+    crossLayer.lineWidth = 2.5;
+    crossLayer.lineCap = kCALineCapRound;
+    crossLayer.lineJoin = kCALineJoinRound;
+    crossLayer.strokeEnd = 0;
+
+    [self.progressView.layer addSublayer:crossLayer];
+
+    CABasicAnimation *circleAnimation = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    circleAnimation.fromValue = @0.0;
+    circleAnimation.toValue = @1.0;
+    circleAnimation.duration = 0.1;
+    circleLayer.opacity = 1.0;
+    [circleLayer addAnimation:circleAnimation forKey:@"fadeIn"];
+
+    __weak __typeof(self) weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+      DYYYToast *toast = weakSelf;
+      if (!toast) {
+          return;
+      }
+      if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHapticFeedbackEnabled"]) {
+          UINotificationFeedbackGenerator *feedbackGenerator = [[UINotificationFeedbackGenerator alloc] init];
+          [feedbackGenerator notificationOccurred:UINotificationFeedbackTypeError];
+      }
+
+      CABasicAnimation *crossAnimation = [CABasicAnimation animationWithKeyPath:@"strokeEnd"];
+      crossAnimation.fromValue = @0.0;
+      crossAnimation.toValue = @1.0;
+      crossAnimation.duration = 0.15;
+      crossAnimation.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut];
+      crossLayer.strokeEnd = 1.0;
+      [crossLayer addAnimation:crossAnimation forKey:@"drawCross"];
+
+      [UIView animateWithDuration:0.15
+          delay:0.1
+          usingSpringWithDamping:0.6
+          initialSpringVelocity:0.8
+          options:UIViewAnimationOptionCurveEaseInOut
+          animations:^{
+            toast.progressView.transform = CGAffineTransformMakeScale(1.15, 1.15);
+          }
+          completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.2
+                             animations:^{
+                               toast.progressView.transform = CGAffineTransformIdentity;
+                             }];
+          }];
+
+      __weak __typeof(toast) innerWeakToast = toast;
+      dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        DYYYToast *innerToast = innerWeakToast;
+        if (!innerToast) {
+            return;
+        }
+        [UIView animateWithDuration:0.2
+            animations:^{
+              innerToast.alpha = 0;
+            }
+            completion:^(BOOL finished) {
+              [innerToast removeFromSuperview];
+              if (completion) {
+                  completion();
+              }
+            }];
+      });
+    });
+}
+
 - (void)showSuccessToastWithMessage:(NSString *)message completion:(void (^)(void))completion {
     UIWindow *window = [DYYYUtils getActiveWindow];
     if (!window) {

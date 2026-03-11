@@ -167,6 +167,13 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (CALayer *)layerFromSchemeHexString:(NSString *)hexString frame:(CGRect)frame;
 
+/**
+ * @brief 根据十六进制字符串返回 UIColor
+ * @param hexString 十六进制颜色字符串
+ * @return 解析出的 UIColor 对象
+ */
++ (UIColor *)colorWithHexString:(NSString *)hexString;
+
 #pragma mark - Version Utilities
 
 /**

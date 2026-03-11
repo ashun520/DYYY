@@ -1212,6 +1212,10 @@ static os_unfair_lock _staticColorCreationLock = OS_UNFAIR_LOCK_INIT;
     return image;
 }
 
++ (UIColor *)colorWithHexString:(NSString *)hexString {
+    return [self _colorFromHexString:hexString] ?: [UIColor whiteColor];
+}
+
 #pragma mark - Version Utilities
 
 + (NSComparisonResult)compareVersion:(NSString *)lhs toVersion:(NSString *)rhs {

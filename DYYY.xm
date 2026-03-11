@@ -172,7 +172,7 @@ static void DYYYSaveVoiceToPackage(NSURL *audioURL, NSString *fileName) {
 }
 
 // 获取语音包中的所有语音
-static NSArray *DYYYGetVoicePackageList(void) {
+NSArray *DYYYGetVoicePackageList(void) {
     NSString *voiceDir = DYYYVoicePackageDirectory();
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -446,7 +446,7 @@ static void DYYYSaveStickerToCollection(NSURL *stickerURL, NSString *stickerName
 }
 
 // 获取收藏的表情包列表
-static NSArray *DYYYGetStickerCollectionList(void) {
+NSArray *DYYYGetStickerCollectionList(void) {
     NSString *stickerDir = DYYYStickerCollectionDirectory();
     NSError *error = nil;
     NSFileManager *fileManager = [NSFileManager defaultManager];
