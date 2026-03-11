@@ -3189,6 +3189,359 @@ speedSettingsItem.detail = trimmedText;
     };
     [mainItems addObject:floatButtonSettingItem];
 
+    // 创建彩色文字设置分类项
+    AWESettingItemModel *gradientTextSettingItem = [[%c(AWESettingItemModel) alloc] init];
+    gradientTextSettingItem.identifier = @"DYYYGradientTextSettings";
+    gradientTextSettingItem.title = @"彩色文字";
+    gradientTextSettingItem.type = 0;
+    gradientTextSettingItem.svgIconImageName = @"ic_text_outlined_20";
+    gradientTextSettingItem.cellType = 26;
+    gradientTextSettingItem.colorStyle = 0;
+    gradientTextSettingItem.isEnable = YES;
+    gradientTextSettingItem.cellTappedBlock = ^{
+      // 创建彩色文字设置二级界面的设置项
+      NSMutableArray<AWESettingItemModel *> *gradientTextItems = [NSMutableArray array];
+      NSArray *gradientTextSettings = @[
+          @{@"identifier" : @"DYYYEnableGradientText",
+            @"title" : @"启用彩色文字",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_text_outlined_20"},
+          @{@"identifier" : @"DYYYGradientTextPreset",
+            @"title" : @"选择渐变色系",
+            @"detail" : @"默认渐变",
+            @"cellType" : @26,
+            @"imageName" : @"ic_text_outlined_20"},
+          @{@"identifier" : @"DYYYGradientTextStartColor",
+            @"title" : @"自定义渐变起始色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_text_outlined_20"},
+          @{@"identifier" : @"DYYYGradientTextEndColor",
+            @"title" : @"自定义渐变结束色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_text_outlined_20"},
+          @{@"identifier" : @"DYYYGradientTextSpeed",
+            @"title" : @"渐变动画速度",
+            @"detail" : @"中速",
+            @"cellType" : @26,
+            @"imageName" : @"ic_text_outlined_20"},
+          @{@"identifier" : @"DYYYEnableVoicePackage",
+            @"title" : @"启用语音包功能",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_mic_outlined_20"},
+          @{@"identifier" : @"DYYYVoicePackageManager",
+            @"title" : @"管理我的语音包",
+            @"detail" : @"",
+            @"cellType" : @26,
+            @"imageName" : @"ic_mic_outlined_20"}
+      ];
+
+      for (NSDictionary *dict in gradientTextSettings) {
+          AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict];
+          
+          if ([item.identifier isEqualToString:@"DYYYGradientTextPreset"]) {
+              NSString *savedPreset = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYGradientTextPreset"];
+              item.detail = savedPreset ?: @"默认渐变";
+              item.cellTappedBlock = ^{
+                NSArray *presetOptions = @[ @"默认渐变", @"彩虹渐变", @"日出渐变", @"星空渐变", @"糖果渐变", @"深海渐变", @"火焰渐变", @"独角兽渐变", @"自定义" ];
+
+                [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYGradientTextPreset"
+                                                   optionsArray:presetOptions
+                                                     headerText:@"选择渐变色系"
+                                                 onPresentingVC:topView()
+                                               selectionChanged:^(NSString *selectedValue) {
+                                                 item.detail = selectedValue;
+                                                 [item refreshCell];
+                                               }];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYGradientTextSpeed"]) {
+              NSString *savedSpeed = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYGradientTextSpeed"];
+              item.detail = savedSpeed ?: @"中速";
+              item.cellTappedBlock = ^{
+                NSArray *speedOptions = @[ @"极慢", @"慢速", @"中速", @"快速", @"极快" ];
+
+                [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYGradientTextSpeed"
+                                                   optionsArray:speedOptions
+                                                     headerText:@"选择渐变动画速度"
+                                                 onPresentingVC:topView()
+                                               selectionChanged:^(NSString *selectedValue) {
+                                                 item.detail = selectedValue;
+                                                 [item refreshCell];
+                                               }];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYGradientTextStartColor"] || [item.identifier isEqualToString:@"DYYYGradientTextEndColor"]) {
+              NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:item.identifier];
+              item.detail = savedColor ?: @"十六进制";
+              item.cellTappedBlock = ^{
+                [DYYYSettingsHelper showTextInputAlert:[NSString stringWithFormat:@"设置%@", item.title]
+                                           defaultText:item.detail
+                                           placeholder:@"十六进制颜色值"
+                                             onConfirm:^(NSString *text) {
+                                               NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                                               [DYYYSettingsHelper setUserDefaults:trimmedText forKey:item.identifier];
+                                               item.detail = trimmedText ?: @"十六进制";
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYVoicePackageManager"]) {
+              item.cellTappedBlock = ^{
+                [DYYYUtils showToast:@"语音包管理功能开发中"];
+              };
+          }
+          
+          [gradientTextItems addObject:item];
+      }
+
+      NSMutableArray *sections = [NSMutableArray array];
+      [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"彩色文字设置" items:gradientTextItems]];
+
+      AWESettingBaseViewController *subVC = [DYYYSettingsHelper createSubSettingsViewController:@"彩色文字" sections:sections];
+      [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
+    };
+    [mainItems addObject:gradientTextSettingItem];
+
+    // 创建主题系统设置分类项
+    AWESettingItemModel *themeSettingItem = [[%c(AWESettingItemModel) alloc] init];
+    themeSettingItem.identifier = @"DYYYThemeSettings";
+    themeSettingItem.title = @"主题系统";
+    themeSettingItem.type = 0;
+    themeSettingItem.svgIconImageName = @"ic_palette_outlined_20";
+    themeSettingItem.cellType = 26;
+    themeSettingItem.colorStyle = 0;
+    themeSettingItem.isEnable = YES;
+    themeSettingItem.cellTappedBlock = ^{
+      // 创建主题系统设置二级界面的设置项
+      NSMutableArray<AWESettingItemModel *> *themeItems = [NSMutableArray array];
+      NSArray *themeSettings = @[
+          @{@"identifier" : @"DYYYThemeStyle",
+            @"title" : @"选择主题风格",
+            @"detail" : @"默认风格",
+            @"cellType" : @26,
+            @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYThemePrimaryColor",
+            @"title" : @"自定义主题主色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYThemeBackgroundColor",
+            @"title" : @"自定义主题背景色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYThemeAccentColor",
+            @"title" : @"自定义强调色",
+            @"detail" : @"十六进制",
+            @"cellType" : @26,
+            @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYEnableRoundedCards",
+            @"title" : @"启用圆角卡片",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_palette_outlined_20"},
+          @{@"identifier" : @"DYYYEnableDarkMode",
+            @"title" : @"启用暗色模式",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_palette_outlined_20"}
+      ];
+
+      for (NSDictionary *dict in themeSettings) {
+          AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict];
+          
+          if ([item.identifier isEqualToString:@"DYYYThemeStyle"]) {
+              NSString *savedStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYThemeStyle"];
+              item.detail = savedStyle ?: @"默认风格";
+              item.cellTappedBlock = ^{
+                NSArray *styleOptions = @[ @"默认风格", @"炫彩风格", @"简约风格", @"赛博风格", @"奶油风格", @"暗夜风格", @"自定义" ];
+
+                [DYYYOptionsSelectionView showWithPreferenceKey:@"DYYYThemeStyle"
+                                                   optionsArray:styleOptions
+                                                     headerText:@"选择主题风格"
+                                                 onPresentingVC:topView()
+                                               selectionChanged:^(NSString *selectedValue) {
+                                                 item.detail = selectedValue;
+                                                 [item refreshCell];
+                                               }];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYThemePrimaryColor"] || 
+                     [item.identifier isEqualToString:@"DYYYThemeBackgroundColor"] || 
+                     [item.identifier isEqualToString:@"DYYYThemeAccentColor"]) {
+              NSString *savedColor = [[NSUserDefaults standardUserDefaults] objectForKey:item.identifier];
+              item.detail = savedColor ?: @"十六进制";
+              item.cellTappedBlock = ^{
+                [DYYYSettingsHelper showTextInputAlert:[NSString stringWithFormat:@"设置%@", item.title]
+                                           defaultText:item.detail
+                                           placeholder:@"十六进制颜色值"
+                                             onConfirm:^(NSString *text) {
+                                               NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                                               [DYYYSettingsHelper setUserDefaults:trimmedText forKey:item.identifier];
+                                               item.detail = trimmedText ?: @"十六进制";
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          }
+          
+          [themeItems addObject:item];
+      }
+
+      NSMutableArray *sections = [NSMutableArray array];
+      [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"主题系统设置" items:themeItems]];
+
+      AWESettingBaseViewController *subVC = [DYYYSettingsHelper createSubSettingsViewController:@"主题系统" sections:sections];
+      [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
+    };
+    [mainItems addObject:themeSettingItem];
+
+    // 创建底栏自定义设置分类项
+    AWESettingItemModel *bottomBarSettingItem = [[%c(AWESettingItemModel) alloc] init];
+    bottomBarSettingItem.identifier = @"DYYYBottomBarSettings";
+    bottomBarSettingItem.title = @"底栏自定义";
+    bottomBarSettingItem.type = 0;
+    bottomBarSettingItem.svgIconImageName = @"ic_tab_outlined_20";
+    bottomBarSettingItem.cellType = 26;
+    bottomBarSettingItem.colorStyle = 0;
+    bottomBarSettingItem.isEnable = YES;
+    bottomBarSettingItem.cellTappedBlock = ^{
+      // 创建底栏自定义设置二级界面的设置项
+      NSMutableArray<AWESettingItemModel *> *bottomBarItems = [NSMutableArray array];
+      NSArray *bottomBarSettings = @[
+          @{@"identifier" : @"DYYYBottomShopTitle",
+            @"title" : @"设置底栏商城名称",
+            @"detail" : @"不填默认",
+            @"cellType" : @26,
+            @"imageName" : @"ic_tab_outlined_20"},
+          @{@"identifier" : @"DYYYBottomFriendsTitle",
+            @"title" : @"设置底栏朋友名称",
+            @"detail" : @"不填默认",
+            @"cellType" : @26,
+            @"imageName" : @"ic_tab_outlined_20"},
+          @{@"identifier" : @"DYYYBottomMsgTitle",
+            @"title" : @"设置底栏消息名称",
+            @"detail" : @"不填默认",
+            @"cellType" : @26,
+            @"imageName" : @"ic_tab_outlined_20"},
+          @{@"identifier" : @"DYYYBottomSelfTitle",
+            @"title" : @"设置底栏我的名称",
+            @"detail" : @"不填默认",
+            @"cellType" : @26,
+            @"imageName" : @"ic_tab_outlined_20"}
+      ];
+
+      for (NSDictionary *dict in bottomBarSettings) {
+          AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict];
+          item.cellTappedBlock = ^{
+            [DYYYSettingsHelper showTextInputAlert:[NSString stringWithFormat:@"设置%@", item.title]
+                                       defaultText:item.detail
+                                       placeholder:@"不填默认"
+                                         onConfirm:^(NSString *text) {
+                                           NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                                           [DYYYSettingsHelper setUserDefaults:trimmedText forKey:item.identifier];
+                                           item.detail = trimmedText ?: @"不填默认";
+                                           [item refreshCell];
+                                         }
+                                          onCancel:nil];
+          };
+          [bottomBarItems addObject:item];
+      }
+
+      NSMutableArray *sections = [NSMutableArray array];
+      [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"底栏自定义设置" items:bottomBarItems]];
+
+      AWESettingBaseViewController *subVC = [DYYYSettingsHelper createSubSettingsViewController:@"底栏自定义" sections:sections];
+      [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
+    };
+    [mainItems addObject:bottomBarSettingItem];
+
+    // 创建实用功能设置分类项
+    AWESettingItemModel *practicalSettingItem = [[%c(AWESettingItemModel) alloc] init];
+    practicalSettingItem.identifier = @"DYYYPracticalSettings";
+    practicalSettingItem.title = @"实用功能";
+    practicalSettingItem.type = 0;
+    practicalSettingItem.svgIconImageName = @"ic_lightbulb_outlined_20";
+    practicalSettingItem.cellType = 26;
+    practicalSettingItem.colorStyle = 0;
+    practicalSettingItem.isEnable = YES;
+    practicalSettingItem.cellTappedBlock = ^{
+      // 创建实用功能设置二级界面的设置项
+      NSMutableArray<AWESettingItemModel *> *practicalItems = [NSMutableArray array];
+      NSArray *practicalSettings = @[
+          @{@"identifier" : @"DYYYEnableQuickComment",
+            @"title" : @"启用快捷评论",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_lightbulb_outlined_20"},
+          @{@"identifier" : @"DYYYQuickCommentText",
+            @"title" : @"快捷评论文案",
+            @"detail" : @"多条用#分隔",
+            @"cellType" : @26,
+            @"imageName" : @"ic_lightbulb_outlined_20"},
+          @{@"identifier" : @"DYYYEnableStickerEject",
+            @"title" : @"启用表情包弹射",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_lightbulb_outlined_20"},
+          @{@"identifier" : @"DYYYEnableStickerCollect",
+            @"title" : @"启用评论表情包收藏",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_lightbulb_outlined_20"},
+          @{@"identifier" : @"DYYYStickerManager",
+            @"title" : @"管理收藏表情包",
+            @"detail" : @"",
+            @"cellType" : @26,
+            @"imageName" : @"ic_lightbulb_outlined_20"},
+          @{@"identifier" : @"DYYYEnhancedLikeAnimation",
+            @"title" : @"启用点赞动效增强",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_lightbulb_outlined_20"},
+          @{@"identifier" : @"DYYYShowCommentTime",
+            @"title" : @"启用评论时间显示",
+            @"detail" : @"",
+            @"cellType" : @6,
+            @"imageName" : @"ic_lightbulb_outlined_20"}
+      ];
+
+      for (NSDictionary *dict in practicalSettings) {
+          AWESettingItemModel *item = [DYYYSettingsHelper createSettingItem:dict];
+          
+          if ([item.identifier isEqualToString:@"DYYYQuickCommentText"]) {
+              NSString *savedText = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYQuickCommentText"];
+              item.detail = savedText ?: @"多条用#分隔";
+              item.cellTappedBlock = ^{
+                [DYYYSettingsHelper showTextInputAlert:@"设置快捷评论文案"
+                                           defaultText:item.detail
+                                           placeholder:@"多条用#分隔"
+                                             onConfirm:^(NSString *text) {
+                                               NSString *trimmedText = [text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+                                               [DYYYSettingsHelper setUserDefaults:trimmedText forKey:item.identifier];
+                                               item.detail = trimmedText ?: @"多条用#分隔";
+                                               [item refreshCell];
+                                             }
+                                              onCancel:nil];
+              };
+          } else if ([item.identifier isEqualToString:@"DYYYStickerManager"]) {
+              item.cellTappedBlock = ^{
+                [DYYYUtils showToast:@"表情包管理功能开发中"];
+              };
+          }
+          
+          [practicalItems addObject:item];
+      }
+
+      NSMutableArray *sections = [NSMutableArray array];
+      [sections addObject:[DYYYSettingsHelper createSectionWithTitle:@"实用功能设置" items:practicalItems]];
+
+      AWESettingBaseViewController *subVC = [DYYYSettingsHelper createSubSettingsViewController:@"实用功能" sections:sections];
+      [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
+    };
+    [mainItems addObject:practicalSettingItem];
+
     // 创建备份设置分类
     AWESettingSectionModel *backupSection = [[%c(AWESettingSectionModel) alloc] init];
     backupSection.sectionHeaderTitle = @"备份";
