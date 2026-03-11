@@ -5424,22 +5424,38 @@ static NSHashTable *processedParentViews = nil;
         BOOL isImageContent = (awemeModel.awemeType == 68);
         // 判断是否为新版实况照片 - 使用多种方式检测
         BOOL isNewLivePhoto = NO;
-        if (awemeModel.video) {
-            // 方法1: 检测animatedImageVideoInfo
-            if ([awemeModel respondsToSelector:@selector(animatedImageVideoInfo)]) {
-                isNewLivePhoto = (awemeModel.animatedImageVideoInfo != nil);
+        
+        // 检查awemeModel直接的livePhoto属性
+        if (awemeModel.isLivePhoto) {
+            isNewLivePhoto = YES;
+        }
+        
+        // 方法1: 检测animatedImageVideoInfo
+        if (!isNewLivePhoto && [awemeModel respondsToSelector:@selector(animatedImageVideoInfo)]) {
+            isNewLivePhoto = (awemeModel.animatedImageVideoInfo != nil);
+        }
+        
+        // 方法2: 检测视频是否有live_photo标记
+        if (!isNewLivePhoto && awemeModel.video) {
+            AWEVideoModel *vm = awemeModel.video;
+            if ([vm respondsToSelector:@selector(isLivePhoto)] && [[vm valueForKey:@"isLivePhoto"] boolValue]) {
+                isNewLivePhoto = YES;
             }
-            // 方法2: 检测视频是否有live_photo标记
-            if (!isNewLivePhoto && awemeModel.video) {
-                AWEVideoModel *vm = awemeModel.video;
-                if ([vm respondsToSelector:@selector(isLivePhoto)] && [[vm valueForKey:@"isLivePhoto"] boolValue]) {
+        }
+        
+        // 方法3: 检测是否有livePhotoModel
+        if (!isNewLivePhoto) {
+            id livePhotoModel = [awemeModel valueForKey:@"livePhotoModel"];
+            isNewLivePhoto = (livePhotoModel != nil);
+        }
+        
+        // 方法4: 检测albumImages中的LivePhoto
+        if (!isNewLivePhoto && isImageContent && awemeModel.albumImages.count > 0) {
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.clipVideo != nil) {
                     isNewLivePhoto = YES;
+                    break;
                 }
-            }
-            // 方法3: 检测是否有livePhotoModel
-            if (!isNewLivePhoto) {
-                id livePhotoModel = [awemeModel valueForKey:@"livePhotoModel"];
-                isNewLivePhoto = (livePhotoModel != nil);
             }
         }
         NSString *downloadTitle;
@@ -6358,6 +6374,41 @@ static void *DYYYTabBarHeightContext = &DYYYTabBarHeightContext;
     }
     return %orig;
 }
+%end
+
+// 同时hook UITabBarButton以确保底栏商城名称自定义功能正常工作
+%hook UITabBarButton
+
+- (void)setTitleText:(id)arg1 {
+    %orig(arg1);
+
+    NSString *shopTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomShopTitle"];
+    NSString *friendsTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomFriendsTitle"];
+    NSString *msgTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomMsgTitle"];
+    NSString *selfTitle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYBottomSelfTitle"];
+
+    NSString *label = self.accessibilityLabel;
+    if (!label) return;
+
+    if ([label containsString:@"商城"] && shopTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(shopTitle);
+        });
+    } else if ([label containsString:@"朋友"] && friendsTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(friendsTitle);
+        });
+    } else if ([label containsString:@"消息"] && msgTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(msgTitle);
+        });
+    } else if ([label isEqualToString:@"我"] && selfTitle.length > 0) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            %orig(selfTitle);
+        });
+    }
+}
+
 %end
 
 %hook AWENormalModeTabBarTextView
