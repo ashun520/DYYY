@@ -21,4 +21,8 @@
 #define DYYYGeonamesErrorDomain @"com.dyyy.geonames.api.error"
 #define DYYYGeonamesStatusUserInfoKey @"com.dyyy.geonames.api.status"
 
+// 语音包和表情包函数声明
+NSArray *DYYYGetVoicePackageList(void);
+NSArray *DYYYGetStickerCollectionList(void);
+
 #endif
