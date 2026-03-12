@@ -22,9 +22,15 @@ jobs:
           echo "$(brew --prefix)/opt/make/libexec/gnubin" >> $GITHUB_PATH
 
       - name: Build package
+        env:
+          THEOS: ${{ github.workspace }}/theos
         run: |
           rm -f packages/*
           rm -rf .theos
+          # 确保Theos vendor目录存在
+          if [ ! -d "$THEOS/vendor" ]; then
+            bash "$THEOS/bin/update-theos"
+          fi
           make package FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
           make package THEOS_PACKAGE_SCHEME=rootless FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
           make package THEOS_PACKAGE_SCHEME=roothide FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
