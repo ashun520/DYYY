@@ -1,4 +1,4 @@
-﻿//
+//
 //  DYYY
 //
 //  Copyright (c) 2024 huami. All rights reserved.
@@ -282,7 +282,7 @@ static UIColor *DYYYGetThemeBackgroundColor(void) {
     } else if ([themeStyle isEqualToString:@"赛博风格"]) {
         return [UIColor colorWithRed:0.05 green:0.05 blue:0.1 alpha:1.0];
     } else if ([themeStyle isEqualToString:@"奶油风格"]) {
-        return [UIColor colorWithRed:0.15 green:0.1 green:0.05 alpha:1.0];
+        return [UIColor colorWithRed:0.15 green:0.1 blue:0.05 alpha:1.0];
     } else if ([themeStyle isEqualToString:@"暗夜风格"]) {
         return [UIColor colorWithRed:0.05 green:0.05 blue:0.1 alpha:1.0];
     } else {
