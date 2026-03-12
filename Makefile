@@ -38,6 +38,15 @@ endif
 # 设置THEOS_MAKE_PATH
 THEOS_MAKE_PATH := $(THEOS)/makefiles
 
+# 检查并初始化vendor目录 (如果在CI中或vendor不存在)
+VENDOR_DIR := $(THEOS)/vendor
+ifeq ($(GITHUB_ACTIONS),true)
+    ifeq ($(wildcard $(VENDOR_DIR)),)
+        $(info Initializing Theos vendor...)
+        INIT_VENDOR := $(shell bash $(THEOS)/bin/update-theos)
+    endif
+endif
+
 include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = DYYY
