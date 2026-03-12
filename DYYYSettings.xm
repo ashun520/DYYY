@@ -148,12 +148,16 @@ static void DYYYRemoveRemoteConfigObserver(void) {
 
 - (void)didMoveToSuperview {
     %orig;
+    __weak __typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSString *accessibilityLabel = self.accessibilityLabel;
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        
+        NSString *accessibilityLabel = strongSelf.accessibilityLabel;
         if (![accessibilityLabel isEqualToString:@"设置"]) {
             return;
         }
-        UIView *targetSuperView = self.superview.superview.superview ?: self;
+        UIView *targetSuperView = strongSelf.superview.superview.superview ?: strongSelf;
         UIButton *oldBtn = (UIButton *)[targetSuperView viewWithTag:232323];
         if (oldBtn) {
             [oldBtn removeFromSuperview];
@@ -167,12 +171,12 @@ static void DYYYRemoveRemoteConfigObserver(void) {
         [dyyyBtn setTitleColor:titleColor forState:UIControlStateNormal];
 
         dyyyBtn.titleLabel.font = [UIFont boldSystemFontOfSize:15];
-        CGRect frame = self.frame;
+        CGRect frame = strongSelf.frame;
         dyyyBtn.frame = CGRectMake(frame.origin.x + frame.size.width - 60 - 10 - 2, 8, 60, 32);
         dyyyBtn.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
         dyyyBtn.layer.cornerRadius = 8;
         dyyyBtn.clipsToBounds = YES;
-        [dyyyBtn addTarget:self action:@selector(dyyyButtonTapped) forControlEvents:UIControlEventTouchUpInside];
+        [dyyyBtn addTarget:strongSelf action:@selector(dyyyButtonTapped) forControlEvents:UIControlEventTouchUpInside];
         [targetSuperView addSubview:dyyyBtn];
     });
 }
