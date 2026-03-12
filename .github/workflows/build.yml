@@ -21,16 +21,23 @@ jobs:
         run: |
           echo "$(brew --prefix)/opt/make/libexec/gnubin" >> $GITHUB_PATH
 
+      - name: Initialize Theos vendor
+        run: |
+          export THEOS=${{ github.workspace }}/theos
+          echo "THEOS=$THEOS"
+          # 确保vendor目录存在及初始化
+          if [ ! -d "$THEOS/vendor" ]; then
+            echo "update-theos: Initializing Theos vendor..."
+            bash "$THEOS/bin/update-theos"
+          fi
+          ls -la "$THEOS/vendor/" | head -20 || echo "vendor directory still not found"
+
       - name: Build package
         env:
           THEOS: ${{ github.workspace }}/theos
         run: |
           rm -f packages/*
           rm -rf .theos
-          # 确保Theos vendor目录存在
-          if [ ! -d "$THEOS/vendor" ]; then
-            bash "$THEOS/bin/update-theos"
-          fi
           make package FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
           make package THEOS_PACKAGE_SCHEME=rootless FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
           make package THEOS_PACKAGE_SCHEME=roothide FINALPACKAGE=1 -j$(sysctl -n hw.ncpu)
