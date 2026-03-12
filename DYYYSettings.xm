@@ -93,12 +93,16 @@ static void DYYYRemoveRemoteConfigObserver(void) {
 
 - (void)didMoveToSuperview {
     %orig;
+    __weak __typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSString *accessibilityLabel = self.accessibilityLabel;
+        __strong __typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        
+        NSString *accessibilityLabel = strongSelf.accessibilityLabel;
         if (![accessibilityLabel isEqualToString:@"设置"]) {
             return;
         }
-        UIView *targetSuperView = self.superview.superview.superview ?: self;
+        UIView *targetSuperView = strongSelf.superview.superview.superview ?: strongSelf;
         UIButton *oldBtn = (UIButton *)[targetSuperView viewWithTag:232323];
         if (oldBtn) {
             [oldBtn removeFromSuperview];

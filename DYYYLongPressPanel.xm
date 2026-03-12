@@ -151,7 +151,9 @@
         downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
         downloadViewModel.describeString = @"保存视频";
         downloadViewModel.action = ^{
-          AWEAwemeModel *awemeModel = self.awemeModel;
+          __weak typeof(self) weakSelf = self;
+          AWEAwemeModel *awemeModel = weakSelf.awemeModel;
+          if (!awemeModel) return;
           AWEVideoModel *videoModel = awemeModel.video;
           AWEMusicModel *musicModel = awemeModel.music;
           NSURL *audioURL = nil;
@@ -227,7 +229,12 @@
             imageViewModel.describeString = @"保存当前图片";
         }
 
-        AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
+        // 添加边界检查以防止数组越界访问 - BUG FIX #1
+        NSInteger curIdx = self.awemeModel.currentImageIndex;
+        if (curIdx <= 0 || curIdx > self.awemeModel.albumImages.count) {
+            curIdx = 1;  // 默认使用第一张
+        }
+        AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[curIdx - 1];
         if (currimge.clipVideo != nil || self.awemeModel.isLivePhoto) {
             if (self.awemeModel.albumImages.count == 1) {
                 imageViewModel.describeString = @"保存实况";
@@ -236,7 +243,8 @@
             }
         }
         imageViewModel.action = ^{
-          AWEAwemeModel *awemeModel = self.awemeModel;
+          __weak typeof(self) weakSelf = self;
+          AWEAwemeModel *awemeModel = weakSelf.awemeModel;
           AWEImageAlbumImageModel *currentImageModel = nil;
           if (awemeModel.currentImageIndex > 0 && awemeModel.currentImageIndex <= awemeModel.albumImages.count) {
               currentImageModel = awemeModel.albumImages[awemeModel.currentImageIndex - 1];
