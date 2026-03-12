@@ -19,6 +19,10 @@ jobs:
           git clone --recursive https://github.com/theos/theos.git $HOME/theos
           export THEOS=$HOME/theos
           echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          # 检查sdks目录是否存在，如果存在就删除
+          if [ -d "$HOME/theos/sdks" ]; then
+            rm -rf "$HOME/theos/sdks"
+          fi
           git clone --recursive https://github.com/theos/sdks.git $HOME/theos/sdks
 
       - name: Setup GNU Make
